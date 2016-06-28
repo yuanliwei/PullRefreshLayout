@@ -2,11 +2,11 @@ package com.ylw.pullrefreshlibrary;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Paint;
 import android.support.v4.widget.ViewDragHelper;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,10 +79,6 @@ public class PullRefreshLayout extends FrameLayout {
 
         a.recycle();
 
-        // Set up a default TextPaint object
-        mTextPaint = new TextPaint();
-        mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        mTextPaint.setTextAlign(Paint.Align.LEFT);
 
         // Update TextPaint and text measurements from attributes
         View.inflate(context, R.layout.refresh_head_layout, this);
@@ -125,8 +121,12 @@ public class PullRefreshLayout extends FrameLayout {
                 // 计算top的值，不让view拖出边界
                 if (enablePullDown && top > vtH) {
                     downRefreshing = true;
+                    pullCallBack.onPullStateChange(PullCallBack.STATE_STEP2);
                 } else if (enablePullUp && top + vbH < 0) {
                     upRefreshing = true;
+                    pullCallBack.onPullStateChange(PullCallBack.STATE_STEP2);
+                } else {
+                    pullCallBack.onPullStateChange(PullCallBack.STATE_STEP1);
                 }
                 return top - dy / 2;
             }
@@ -162,7 +162,11 @@ public class PullRefreshLayout extends FrameLayout {
                     if (onPullListener != null) onPullListener.onDownRefresh();
                     if (onPullDownListener != null) onPullDownListener.onRefresh();
                 }
-
+                if (refreshing) {
+                    pullCallBack.onPullStateChange(PullCallBack.STATE_STEP3);
+                } else {
+                    pullCallBack.onPullStateChange(PullCallBack.STATE_STEP1);
+                }
                 mDragger.settleCapturedViewAt(0, (int) yPosition);
                 // 启动动画
                 postInvalidate();
@@ -403,13 +407,51 @@ public class PullRefreshLayout extends FrameLayout {
             }
 
         }
+
+        int lastState = STATE_STEP1;
+
+        @Override
+        public void onPullStateChange(int state) {
+            if (lastState == state) return;
+            switch (state) {
+                case STATE_STEP1:
+                    toStep1(lastState, state);
+                    break;
+                case STATE_STEP2:
+                    toStep2(lastState, state);
+                    break;
+                case STATE_STEP3:
+                    toStep3(lastState, state);
+                    break;
+            }
+            lastState = state;
+        }
+
+        private void toStep1(int lastState, int state) {
+            Log.d(TAG, "toStep1: ==========");
+
+        }
+
+        private void toStep2(int lastState, int state) {
+            Log.d(TAG, "toStep2: ==========");
+        }
+
+        private void toStep3(int lastState, int state) {
+            Log.d(TAG, "toStep3: ==========");
+        }
     };
 
 
     public interface PullCallBack {
+        int STATE_STEP1 = 0;    // 不能刷新
+        int STATE_STEP2 = 1;    // 可以刷新
+        int STATE_STEP3 = 2;    // 刷新中
+
         boolean canPullDown();
 
         boolean canPullUp();
+
+        void onPullStateChange(int state);
 
     }
 
