@@ -51,11 +51,8 @@ public class WebViewActivity extends AppCompatActivity {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-
-                if (url.startsWith("tel:")) return false;
                 view.loadUrl(url);
                 return true;
-
             }
         });
         layout.setOnPullDownListener(new PullRefreshLayout.OnPullDownListener() {
