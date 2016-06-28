@@ -96,6 +96,8 @@ public class PullRefreshLayout extends FrameLayout {
     }
 
     private void initHeadBottomViews() {
+        headView.setVisibility(INVISIBLE);
+        bottomView.setVisibility(INVISIBLE);
     }
 
     private void initDragger() {
@@ -121,9 +123,9 @@ public class PullRefreshLayout extends FrameLayout {
                 // 修改View位置
                 changeLayout();
                 // 计算top的值，不让view拖出边界
-                if (top > vtH) {
+                if (enablePullDown && top > vtH) {
                     downRefreshing = true;
-                } else if (vcH + top < vbH) {
+                } else if (enablePullUp && top + vbH < 0) {
                     upRefreshing = true;
                 }
                 return top - dy / 2;
@@ -150,11 +152,11 @@ public class PullRefreshLayout extends FrameLayout {
                 // 计算出View最终的位置， 动态的把View归位
                 float yPosition = 0;
 
-                if (upRefreshing) {
+                if (upRefreshing && pullCallBack.canPullUp()) {
                     yPosition = -vbH;
                     refreshing = true;
                     if (onPullListener != null) onPullListener.onUpRefresh();
-                } else if (downRefreshing) {
+                } else if (downRefreshing && pullCallBack.canPullDown()) {
                     yPosition = vtH;
                     refreshing = true;
                     if (onPullListener != null) onPullListener.onDownRefresh();
@@ -191,10 +193,16 @@ public class PullRefreshLayout extends FrameLayout {
         int t = contentView.getTop();
         int b = contentView.getBottom();
 
-//        if (contentView.getTop() < vtH)
-        headView.layout(0, t - vtH, w, t);
-//        if (h - contentView.getBottom() < vbH)
-        bottomView.layout(0, b, w, b + vbH);
+        if (t < 0 && !pullCallBack.canPullUp()) {
+            contentView.layout(0, t, w, h);
+        } else {
+            bottomView.layout(0, b, w, b + vbH);
+        }
+        if (b > h && !pullCallBack.canPullDown()) {
+            contentView.layout(0, 0, w, b);
+        } else {
+            headView.layout(0, t - vtH, w, t);
+        }
     }
 
     public void countLayout() {
@@ -211,10 +219,8 @@ public class PullRefreshLayout extends FrameLayout {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         contentView = getChildAt(2);        //这个必须是WebView
         if (isInEditMode()) return;
-        if (vtH == 0)
-            vtH = headView.getMeasuredHeight();
-        if (vbH == 0)
-            vbH = bottomView.getMeasuredHeight();
+        if (vtH == 0) vtH = headView.getMeasuredHeight();
+        if (vbH == 0) vbH = bottomView.getMeasuredHeight();
         if (vcH == 0) vcH = contentView.getMeasuredHeight();
 //        vCenterHeight = (int) getResources().getDimension(R.dimen.hw_detail_split_center_height);
         //计算title Height
@@ -322,13 +328,13 @@ public class PullRefreshLayout extends FrameLayout {
         @Override
         public boolean canPullDown() {
             countIt();
-            return canPullDown;
+            return canPullDown && enablePullDown;
         }
 
         @Override
         public boolean canPullUp() {
             countIt();
-            return canPullUp;
+            return canPullUp && enablePullUp;
         }
 
         private void countIt() {
@@ -420,12 +426,23 @@ public class PullRefreshLayout extends FrameLayout {
         void onUpRefresh();
     }
 
+    private boolean enablePullDown = false; // 启用下拉
+    private boolean enablePullUp = false;   // 启用上拉
+
+    // 设置监听 设置后才能进行有下拉刷新动作
     public void setOnPullDownListener(OnPullDownListener onPullDownListener) {
         this.onPullDownListener = onPullDownListener;
+        enablePullDown = true;
+        headView.setVisibility(VISIBLE);
     }
 
+    // 设置监听 设置后才能进行有上下拉刷新动作
     public void setOnPullListener(OnPullListener onPullListener) {
         this.onPullListener = onPullListener;
+        enablePullDown = true;
+        enablePullUp = true;
+        headView.setVisibility(VISIBLE);
+        bottomView.setVisibility(VISIBLE);
     }
 
     public void complete() {

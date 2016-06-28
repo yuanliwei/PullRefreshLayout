@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -43,15 +44,41 @@ public class ListViewActivity extends AppCompatActivity {
 
         final PullRefreshLayout layout = (PullRefreshLayout) findViewById(R.id.pull_layout);
 
-        layout.setOnPullDownListener(new PullRefreshLayout.OnPullDownListener() {
+//        layout.setOnPullDownListener(new PullRefreshLayout.OnPullDownListener() {
+//            @Override
+//            public void onRefresh() {
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        layout.complete();
+//                    }
+//                }, 3000);
+//            }
+//        });
+
+        layout.setOnPullListener(new PullRefreshLayout.OnPullListener() {
+            public static final String TAG = "OnPullListener";
+
             @Override
-            public void onRefresh() {
+            public void onDownRefresh() {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         layout.complete();
                     }
                 }, 3000);
+                Log.d(TAG, "onDownRefresh: =================");
+            }
+
+            @Override
+            public void onUpRefresh() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        layout.complete();
+                    }
+                }, 3000);
+                Log.d(TAG, "onUpRefresh: ==================");
             }
         });
 
