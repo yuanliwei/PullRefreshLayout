@@ -1,27 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.ylw.pullrefreshlayout.MainActivity"
+    tools:context=".activity.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <com.ylw.pullrefreshlayout.PullRefreshLayout
-        android:id="@+id/pull_layout"
+    <Button
+        android:id="@+id/list_view_btn"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#FFCCCCCC">
+        android:layout_height="60dp"
+        android:onClick="onClick"
+        android:text="@string/list_view"/>
 
-        <ListView
-            android:id="@+id/list_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"></ListView>
-    </com.ylw.pullrefreshlayout.PullRefreshLayout>
-</RelativeLayout>
+    <Button
+        android:id="@+id/scroll_view_btn"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:onClick="onClick"
+        android:text="@string/scroll_view"/>
+
+    <Button
+        android:id="@+id/web_view_btn"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:onClick="onClick"
+        android:text="@string/web_view"/>
+
+    <Button
+        android:id="@+id/recycler_view_btn"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:onClick="onClick"
+        android:text="@string/recycler_view"/>
+</LinearLayout>

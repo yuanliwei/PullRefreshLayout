@@ -1,10 +1,10 @@
-package com.ylw.pullrefreshlayout;
+package com.ylw.pullrefreshlibrary;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Paint;
-import android.support.v4.view.ScrollingView;
 import android.support.v4.widget.ViewDragHelper;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -14,6 +14,7 @@ import android.webkit.WebView;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 
 /*
  * 下拉刷新控件
@@ -239,15 +240,28 @@ public class PullRefreshLayout extends FrameLayout {
 //        }
     }
 
+    // 标记正在刷新的时候出现了触摸事件
+    boolean refreshingDown = false;
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (refreshing) return true;
+        if (refreshing || refreshingDown) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_MOVE:
+                    refreshingDown = true;
+                    break;
+                case MotionEvent.ACTION_UP:
+                default:
+                    refreshingDown = false;
+                    break;
+            }
+            return true;
+        }
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             initDragView(contentView, event);
         }
         if (event.getHistorySize() > 0) {                             //拦截Touch事件
-            if (pullCallBack == null)
-                return mDragger.shouldInterceptTouchEvent(event);
             if (event.getY() > event.getHistoricalY(0)) {             //向下滑动
                 if (pullCallBack.canPullDown()) {
                     return mDragger.shouldInterceptTouchEvent(event);
@@ -262,7 +276,13 @@ public class PullRefreshLayout extends FrameLayout {
                 }
             }
         }
-        return mDragger.shouldInterceptTouchEvent(event);
+        if (pullCallBack.canPullDown()) {
+            return mDragger.shouldInterceptTouchEvent(event);
+        } else if (pullCallBack.canPullUp()) {
+            return mDragger.shouldInterceptTouchEvent(event);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -276,8 +296,19 @@ public class PullRefreshLayout extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-//            mDragger.captureChildView(dragView, 0);
-        if (refreshing) return true;
+        if (refreshing || refreshingDown) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_MOVE:
+                    refreshingDown = true;
+                    break;
+                case MotionEvent.ACTION_UP:
+                default:
+                    refreshingDown = false;
+                    break;
+            }
+            return true;
+        }
         mDragger.processTouchEvent(event);
         return true;
     }
@@ -301,7 +332,7 @@ public class PullRefreshLayout extends FrameLayout {
         }
 
         private void countIt() {
-            if (contentView instanceof ScrollingView) {
+            if (contentView instanceof ScrollView) {
                 canPullDown = contentView.getScrollY() == 0;
 
                 View contentview = ((ViewGroup) contentView).getChildAt(0);
@@ -327,26 +358,40 @@ public class PullRefreshLayout extends FrameLayout {
                             if (firstVisibleItemView != null && firstVisibleItemView.getTop() == 0) {
                                 canPullDown = true;
                                 canPullUp = false;
-                                return;
                             }
                         } else if ((firstVisibleItem + visibleItemCount) == totalItemCount) {
                             View lastVisibleItemView = view.getChildAt(view.getChildCount() - 1);
                             if (lastVisibleItemView != null && lastVisibleItemView.getBottom() == view.getHeight()) {
                                 canPullDown = false;
                                 canPullUp = true;
-                                return;
                             }
                         }
                     }
                 });
             } else if (contentView instanceof WebView) {
                 WebView web = (WebView) contentView;
+                canPullDown = false;
+                canPullUp = false;
                 if (web.getScrollY() == 0) {
                     canPullDown = true;
-                    canPullUp = false;
-                } else if (web.getContentHeight() * web.getScale() == (web.getHeight() + web.getScrollY())) {
-                    //已经处于底端
-                    canPullDown = false;
+                }
+//                if (web.getContentHeight() * web.getScale() == (web.getHeight() + web.getScrollY())) {
+//                    //已经处于底端
+//                    canPullUp = true;
+//                }
+            } else if (contentView instanceof RecyclerView) {
+                RecyclerView view = (RecyclerView) contentView;
+                canPullDown = false;
+                canPullUp = false;
+
+                int Extent = view.computeVerticalScrollExtent();
+                int Offset = view.computeVerticalScrollOffset();
+                int Range = view.computeVerticalScrollRange();
+//                Log.d(TAG, "countIt: Offset + Extent - Range = " + (Offset + Extent - Range));
+                if (Offset == 0) {
+                    canPullDown = true;
+                }
+                if (Offset + Extent >= Range) {
                     canPullUp = true;
                 }
             }
