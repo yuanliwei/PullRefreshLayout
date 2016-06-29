@@ -10,10 +10,14 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
 /*
@@ -55,6 +59,11 @@ public class PullRefreshLayout extends FrameLayout {
         init(context, attrs, defStyle);
     }
 
+    private ImageView ivUpRefresh;
+    private ImageView ivDownRefresh;
+    private ProgressBar pbRefresh;
+    private ProgressBar pbBottomRefresh;
+
     private void init(Context context, AttributeSet attrs, int defStyle) {
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
@@ -84,8 +93,11 @@ public class PullRefreshLayout extends FrameLayout {
         View.inflate(context, R.layout.refresh_head_layout, this);
         View.inflate(context, R.layout.refresh_bottom_layout, this);
         headView = getChildAt(0);
+        ivUpRefresh = (ImageView) headView.findViewById(R.id.iv_refresh_head_down);
+        pbRefresh = (ProgressBar) headView.findViewById(R.id.pb_refresh_head);
         bottomView = getChildAt(1);
-
+        ivDownRefresh = (ImageView) bottomView.findViewById(R.id.iv_refresh_head_up);
+        pbBottomRefresh = (ProgressBar) bottomView.findViewById(R.id.pb_refresh_bottom);
         initHeadBottomViews();
 
         initDragger();
@@ -94,6 +106,8 @@ public class PullRefreshLayout extends FrameLayout {
     private void initHeadBottomViews() {
         headView.setVisibility(INVISIBLE);
         bottomView.setVisibility(INVISIBLE);
+        pbRefresh.setVisibility(INVISIBLE);
+        pbBottomRefresh.setVisibility(INVISIBLE);
     }
 
     private void initDragger() {
@@ -427,18 +441,46 @@ public class PullRefreshLayout extends FrameLayout {
             lastState = state;
         }
 
-        private void toStep1(int lastState, int state) {
+        private void toStep1(int lastState, int state) {//TODO
             Log.d(TAG, "toStep1: ==========");
-
+            ivUpRefresh.setVisibility(VISIBLE);
+            ivDownRefresh.setVisibility(VISIBLE);
+            pbRefresh.setVisibility(INVISIBLE);
+            pbBottomRefresh.setVisibility(INVISIBLE);
+            roate2(ivUpRefresh);
+            roate2(ivDownRefresh);
         }
 
         private void toStep2(int lastState, int state) {
             Log.d(TAG, "toStep2: ==========");
+            ivUpRefresh.setVisibility(VISIBLE);
+            ivDownRefresh.setVisibility(VISIBLE);
+            pbRefresh.setVisibility(INVISIBLE);
+            pbBottomRefresh.setVisibility(INVISIBLE);
+            roate1(ivUpRefresh);
+            roate1(ivDownRefresh);
         }
 
         private void toStep3(int lastState, int state) {
             Log.d(TAG, "toStep3: ==========");
+            ivUpRefresh.setVisibility(INVISIBLE);
+            ivUpRefresh.clearAnimation();
+            ivDownRefresh.setVisibility(INVISIBLE);
+            ivDownRefresh.clearAnimation();
+            pbRefresh.setVisibility(VISIBLE);
+            pbBottomRefresh.setVisibility(VISIBLE);
         }
+
+        public void roate1(View v) {
+            Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.roate_180_full_after_1);
+            v.startAnimation(anim);
+        }
+
+        public void roate2(View v) {
+            Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.roate_180_full_after_2);
+            v.startAnimation(anim);
+        }
+
     };
 
 

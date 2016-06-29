@@ -9,4 +9,6 @@
     <string name="web_view">WEBVIEW</string>
     <string name="title_activity_recyle_view">RecyleViewActivity</string>
     <string name="recycler_view">RECYCLERVIEW</string>
+    <string name="title_activity_view_pager">ViewPagerActivity</string>
+    <string name="view_pager">VIEWPAGER</string>
 </resources>

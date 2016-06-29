@@ -53,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.recycler_view_btn:
                 intent = new Intent(this, RecyclerViewActivity.class);
                 break;
+            case R.id.view_pager_btn:
+                intent = new Intent(this, ViewPagerActivity.class);
+                break;
         }
         startActivity(intent);
     }
