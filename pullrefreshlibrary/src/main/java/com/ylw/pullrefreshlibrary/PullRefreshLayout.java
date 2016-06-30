@@ -10,15 +10,14 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.ScrollView;
+
+import com.ylw.pullrefreshlibrary.refreshview.IRefreshView;
+import com.ylw.pullrefreshlibrary.refreshview.RefreshView;
 
 /*
  * 下拉刷新控件
@@ -44,6 +43,8 @@ public class PullRefreshLayout extends FrameLayout {
     private int vbH;
     private int vcH;
 
+    IRefreshView refreshView;
+
     public PullRefreshLayout(Context context) {
         super(context);
         init(context, null, 0);
@@ -59,18 +60,12 @@ public class PullRefreshLayout extends FrameLayout {
         init(context, attrs, defStyle);
     }
 
-    private ImageView ivUpRefresh;
-    private ImageView ivDownRefresh;
-    private ProgressBar pbRefresh;
-    private ProgressBar pbBottomRefresh;
-
     private void init(Context context, AttributeSet attrs, int defStyle) {
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.PullRefreshLayout, defStyle, 0);
 
-//        mExampleString = a.getString(
-//                R.styleable.PullRefreshLayout_exampleString);
+        int refreshStyle = a.getInt(R.styleable.PullRefreshLayout_refreshView, 0);
 //        mExampleColor = a.getColor(
 //                R.styleable.PullRefreshLayout_exampleColor,
 //                mExampleColor);
@@ -88,16 +83,22 @@ public class PullRefreshLayout extends FrameLayout {
 
         a.recycle();
 
+        switch (refreshStyle) {
+            case 0:
+                refreshView = new RefreshView();
+                break;
+            default:
+                refreshView = new RefreshView();
+                break;
+        }
 
         // Update TextPaint and text measurements from attributes
-        View.inflate(context, R.layout.refresh_head_layout, this);
-        View.inflate(context, R.layout.refresh_bottom_layout, this);
+        refreshView.init(context, this);
         headView = getChildAt(0);
-        ivUpRefresh = (ImageView) headView.findViewById(R.id.iv_refresh_head_down);
-        pbRefresh = (ProgressBar) headView.findViewById(R.id.pb_refresh_head);
         bottomView = getChildAt(1);
-        ivDownRefresh = (ImageView) bottomView.findViewById(R.id.iv_refresh_head_up);
-        pbBottomRefresh = (ProgressBar) bottomView.findViewById(R.id.pb_refresh_bottom);
+        refreshView.initView(headView, bottomView);
+
+
         initHeadBottomViews();
 
         initDragger();
@@ -106,8 +107,7 @@ public class PullRefreshLayout extends FrameLayout {
     private void initHeadBottomViews() {
         headView.setVisibility(INVISIBLE);
         bottomView.setVisibility(INVISIBLE);
-        pbRefresh.setVisibility(INVISIBLE);
-        pbBottomRefresh.setVisibility(INVISIBLE);
+        refreshView.initPbInvisible();
     }
 
     private void initDragger() {
@@ -443,42 +443,17 @@ public class PullRefreshLayout extends FrameLayout {
 
         private void toStep1(int lastState, int state) {//TODO
             Log.d(TAG, "toStep1: ==========");
-            ivUpRefresh.setVisibility(VISIBLE);
-            ivDownRefresh.setVisibility(VISIBLE);
-            pbRefresh.setVisibility(INVISIBLE);
-            pbBottomRefresh.setVisibility(INVISIBLE);
-            roate2(ivUpRefresh);
-            roate2(ivDownRefresh);
+            refreshView.toStep1(getContext(), lastState, state);
         }
 
         private void toStep2(int lastState, int state) {
             Log.d(TAG, "toStep2: ==========");
-            ivUpRefresh.setVisibility(VISIBLE);
-            ivDownRefresh.setVisibility(VISIBLE);
-            pbRefresh.setVisibility(INVISIBLE);
-            pbBottomRefresh.setVisibility(INVISIBLE);
-            roate1(ivUpRefresh);
-            roate1(ivDownRefresh);
+            refreshView.toStep2(getContext(), lastState, state);
         }
 
         private void toStep3(int lastState, int state) {
             Log.d(TAG, "toStep3: ==========");
-            ivUpRefresh.setVisibility(INVISIBLE);
-            ivUpRefresh.clearAnimation();
-            ivDownRefresh.setVisibility(INVISIBLE);
-            ivDownRefresh.clearAnimation();
-            pbRefresh.setVisibility(VISIBLE);
-            pbBottomRefresh.setVisibility(VISIBLE);
-        }
-
-        public void roate1(View v) {
-            Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.roate_180_full_after_1);
-            v.startAnimation(anim);
-        }
-
-        public void roate2(View v) {
-            Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.roate_180_full_after_2);
-            v.startAnimation(anim);
+            refreshView.toStep3(getContext(), lastState, state);
         }
 
     };
@@ -543,5 +518,7 @@ public class PullRefreshLayout extends FrameLayout {
 
     }
 
-
+    public IRefreshView getRefreshView() {
+        return refreshView;
+    }
 }

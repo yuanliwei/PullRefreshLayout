@@ -1,0 +1,215 @@
+From b49e3a2c6151d80fabac7acac022eb134796451b Mon Sep 17 00:00:00 2001
+From: yuanliwei <891789592@qq.com>
+Date: Tue, 28 Jun 2016 17:22:19 +0800
+Subject: [PATCH 05/10] step2 over2
+
+---
+ .../activity/ListViewActivity.java                 | 31 ++++++++++++++-
+ .../ylw/pullrefreshlibrary/PullRefreshLayout.java  | 45 +++++++++++++++-------
+ .../src/main/res/layout/refresh_bottom_layout.xml  | 19 ++++++---
+ 3 files changed, 73 insertions(+), 22 deletions(-)
+
+diff --git a/app/src/main/java/com/ylw/pullrefreshlayout/activity/ListViewActivity.java b/app/src/main/java/com/ylw/pullrefreshlayout/activity/ListViewActivity.java
+index a79ee6c..29654f9 100644
+--- a/app/src/main/java/com/ylw/pullrefreshlayout/activity/ListViewActivity.java
++++ b/app/src/main/java/com/ylw/pullrefreshlayout/activity/ListViewActivity.java
+@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
+ import android.support.design.widget.Snackbar;
+ import android.support.v7.app.AppCompatActivity;
+ import android.support.v7.widget.Toolbar;
++import android.util.Log;
+ import android.view.View;
+ import android.widget.ArrayAdapter;
+ import android.widget.ListView;
+@@ -43,15 +44,41 @@ public class ListViewActivity extends AppCompatActivity {
+ 
+         final PullRefreshLayout layout = (PullRefreshLayout) findViewById(R.id.pull_layout);
+ 
+-        layout.setOnPullDownListener(new PullRefreshLayout.OnPullDownListener() {
++//        layout.setOnPullDownListener(new PullRefreshLayout.OnPullDownListener() {
++//            @Override
++//            public void onRefresh() {
++//                new Handler().postDelayed(new Runnable() {
++//                    @Override
++//                    public void run() {
++//                        layout.complete();
++//                    }
++//                }, 3000);
++//            }
++//        });
++
++        layout.setOnPullListener(new PullRefreshLayout.OnPullListener() {
++            public static final String TAG = "OnPullListener";
++
++            @Override
++            public void onDownRefresh() {
++                new Handler().postDelayed(new Runnable() {
++                    @Override
++                    public void run() {
++                        layout.complete();
++                    }
++                }, 3000);
++                Log.d(TAG, "onDownRefresh: =================");
++            }
++
+             @Override
+-            public void onRefresh() {
++            public void onUpRefresh() {
+                 new Handler().postDelayed(new Runnable() {
+                     @Override
+                     public void run() {
+                         layout.complete();
+                     }
+                 }, 3000);
++                Log.d(TAG, "onUpRefresh: ==================");
+             }
+         });
+ 
+diff --git a/pullrefreshlibrary/src/main/java/com/ylw/pullrefreshlibrary/PullRefreshLayout.java b/pullrefreshlibrary/src/main/java/com/ylw/pullrefreshlibrary/PullRefreshLayout.java
+index 85aed80..c0ff3d7 100644
+--- a/pullrefreshlibrary/src/main/java/com/ylw/pullrefreshlibrary/PullRefreshLayout.java
++++ b/pullrefreshlibrary/src/main/java/com/ylw/pullrefreshlibrary/PullRefreshLayout.java
+@@ -96,6 +96,8 @@ public class PullRefreshLayout extends FrameLayout {
+     }
+ 
+     private void initHeadBottomViews() {
++        headView.setVisibility(INVISIBLE);
++        bottomView.setVisibility(INVISIBLE);
+     }
+ 
+     private void initDragger() {
+@@ -121,9 +123,9 @@ public class PullRefreshLayout extends FrameLayout {
+                 // 修改View位置
+                 changeLayout();
+                 // 计算top的值，不让view拖出边界
+-                if (top > vtH) {
++                if (enablePullDown && top > vtH) {
+                     downRefreshing = true;
+-                } else if (vcH + top < vbH) {
++                } else if (enablePullUp && top + vbH < 0) {
+                     upRefreshing = true;
+                 }
+                 return top - dy / 2;
+@@ -150,11 +152,11 @@ public class PullRefreshLayout extends FrameLayout {
+                 // 计算出View最终的位置， 动态的把View归位
+                 float yPosition = 0;
+ 
+-                if (upRefreshing) {
++                if (upRefreshing && pullCallBack.canPullUp()) {
+                     yPosition = -vbH;
+                     refreshing = true;
+                     if (onPullListener != null) onPullListener.onUpRefresh();
+-                } else if (downRefreshing) {
++                } else if (downRefreshing && pullCallBack.canPullDown()) {
+                     yPosition = vtH;
+                     refreshing = true;
+                     if (onPullListener != null) onPullListener.onDownRefresh();
+@@ -191,10 +193,16 @@ public class PullRefreshLayout extends FrameLayout {
+         int t = contentView.getTop();
+         int b = contentView.getBottom();
+ 
+-//        if (contentView.getTop() < vtH)
+-        headView.layout(0, t - vtH, w, t);
+-//        if (h - contentView.getBottom() < vbH)
+-        bottomView.layout(0, b, w, b + vbH);
++        if (t < 0 && !pullCallBack.canPullUp()) {
++            contentView.layout(0, t, w, h);
++        } else {
++            bottomView.layout(0, b, w, b + vbH);
++        }
++        if (b > h && !pullCallBack.canPullDown()) {
++            contentView.layout(0, 0, w, b);
++        } else {
++            headView.layout(0, t - vtH, w, t);
++        }
+     }
+ 
+     public void countLayout() {
+@@ -211,10 +219,8 @@ public class PullRefreshLayout extends FrameLayout {
+         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+         contentView = getChildAt(2);        //这个必须是WebView
+         if (isInEditMode()) return;
+-        if (vtH == 0)
+-            vtH = headView.getMeasuredHeight();
+-        if (vbH == 0)
+-            vbH = bottomView.getMeasuredHeight();
++        if (vtH == 0) vtH = headView.getMeasuredHeight();
++        if (vbH == 0) vbH = bottomView.getMeasuredHeight();
+         if (vcH == 0) vcH = contentView.getMeasuredHeight();
+ //        vCenterHeight = (int) getResources().getDimension(R.dimen.hw_detail_split_center_height);
+         //计算title Height
+@@ -322,13 +328,13 @@ public class PullRefreshLayout extends FrameLayout {
+         @Override
+         public boolean canPullDown() {
+             countIt();
+-            return canPullDown;
++            return canPullDown && enablePullDown;
+         }
+ 
+         @Override
+         public boolean canPullUp() {
+             countIt();
+-            return canPullUp;
++            return canPullUp && enablePullUp;
+         }
+ 
+         private void countIt() {
+@@ -420,12 +426,23 @@ public class PullRefreshLayout extends FrameLayout {
+         void onUpRefresh();
+     }
+ 
++    private boolean enablePullDown = false; // 启用下拉
++    private boolean enablePullUp = false;   // 启用上拉
++
++    // 设置监听 设置后才能进行有下拉刷新动作
+     public void setOnPullDownListener(OnPullDownListener onPullDownListener) {
+         this.onPullDownListener = onPullDownListener;
++        enablePullDown = true;
++        headView.setVisibility(VISIBLE);
+     }
+ 
++    // 设置监听 设置后才能进行有上下拉刷新动作
+     public void setOnPullListener(OnPullListener onPullListener) {
+         this.onPullListener = onPullListener;
++        enablePullDown = true;
++        enablePullUp = true;
++        headView.setVisibility(VISIBLE);
++        bottomView.setVisibility(VISIBLE);
+     }
+ 
+     public void complete() {
+diff --git a/pullrefreshlibrary/src/main/res/layout/refresh_bottom_layout.xml b/pullrefreshlibrary/src/main/res/layout/refresh_bottom_layout.xml
+index d781775..9c87089 100644
+--- a/pullrefreshlibrary/src/main/res/layout/refresh_bottom_layout.xml
++++ b/pullrefreshlibrary/src/main/res/layout/refresh_bottom_layout.xml
+@@ -1,9 +1,9 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+-              android:layout_width="match_parent"
+-              android:layout_height="wrap_content"
+-              android:gravity="center"
+-              android:orientation="vertical">
++<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
++             android:layout_width="match_parent"
++             android:layout_height="wrap_content"
++             android:gravity="center"
++             android:orientation="vertical">
+ 
+     <TextView
+         android:layout_width="match_parent"
+@@ -13,4 +13,11 @@
+         android:paddingLeft="90dp"
+         android:paddingRight="90dp"
+         android:text="BOTTOM"/>
+-</LinearLayout>
++
++    <ProgressBar
++        style="@style/Widget.AppCompat.ProgressBar"
++        android:layout_width="60dp"
++        android:layout_height="60dp"
++        android:layout_gravity="center|start"
++        android:layout_marginLeft="10dp"/>
++</FrameLayout>
+-- 
+2.9.0.windows.1
+

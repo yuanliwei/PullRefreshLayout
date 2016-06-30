@@ -4,28 +4,57 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="70dp"
-        android:background="#33FF8888"
         android:gravity="center"
-        android:paddingLeft="90dp"
-        android:paddingRight="90dp"
-        android:text="HEAD" />
+        android:orientation="vertical"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp">
+
+        <TextView
+            android:id="@+id/tv_refresh_up_tip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingTop="5dp"
+            android:text="@string/tv_refresh"
+            android:textColor="@android:color/black" />
+        <TextView
+            android:id="@+id/tv_refresh_up_load"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/tv_refresh_load"
+            android:textColor="@android:color/black"
+            android:visibility="invisible"/>
+
+        <TextView
+            android:id="@+id/tv_refresh_up_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingBottom="5dp"
+            android:text="上次刷新时间：2016-6-30 11:09" />
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/pb_refresh_head"
         style="@style/Widget.AppCompat.ProgressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_gravity="center|start"
-        android:layout_marginLeft="10dp" />
+        android:layout_marginLeft="20dp"
+        android:indeterminateBehavior="repeat"
+
+        android:indeterminateDrawable="@drawable/pb_draw"
+        android:indeterminateOnly="true" />
 
     <ImageView
         android:id="@+id/iv_refresh_head_down"
-        android:layout_width="18dp"
-        android:layout_height="30dp"
+        android:layout_width="15dp"
+        android:layout_height="25dp"
         android:layout_gravity="center|start"
         android:layout_marginLeft="28dp"
-        android:background="@drawable/refresh_down"/>
+        android:background="@drawable/refresh_down" />
 </FrameLayout>

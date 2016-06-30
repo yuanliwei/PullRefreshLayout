@@ -1,0 +1,46 @@
+From eae0420e95cbfd73130b640e68e4c25e0ca1db28 Mon Sep 17 00:00:00 2001
+From: yuanliwei <891789592@qq.com>
+Date: Tue, 28 Jun 2016 20:45:50 +0800
+Subject: [PATCH 09/10] delete nouse model
+
+Signed-off-by: yuanliwei <891789592@qq.com>
+---
+ pullrefreshlib/.gitignore                                        | 1 -
+ pullrefreshlib/build.gradle                                      | 5 -----
+ pullrefreshlib/src/main/java/com/ylw/com.ylw.pullrefreshlib.java | 4 ----
+ 3 files changed, 10 deletions(-)
+ delete mode 100644 pullrefreshlib/.gitignore
+ delete mode 100644 pullrefreshlib/build.gradle
+ delete mode 100644 pullrefreshlib/src/main/java/com/ylw/com.ylw.pullrefreshlib.java
+
+diff --git a/pullrefreshlib/.gitignore b/pullrefreshlib/.gitignore
+deleted file mode 100644
+index 796b96d..0000000
+--- a/pullrefreshlib/.gitignore
++++ /dev/null
+@@ -1 +0,0 @@
+-/build
+diff --git a/pullrefreshlib/build.gradle b/pullrefreshlib/build.gradle
+deleted file mode 100644
+index 89a226b..0000000
+--- a/pullrefreshlib/build.gradle
++++ /dev/null
+@@ -1,5 +0,0 @@
+-apply plugin: 'java'
+-
+-dependencies {
+-    compile fileTree(dir: 'libs', include: ['*.jar'])
+-}
+diff --git a/pullrefreshlib/src/main/java/com/ylw/com.ylw.pullrefreshlib.java b/pullrefreshlib/src/main/java/com/ylw/com.ylw.pullrefreshlib.java
+deleted file mode 100644
+index 39d0a69..0000000
+--- a/pullrefreshlib/src/main/java/com/ylw/com.ylw.pullrefreshlib.java
++++ /dev/null
+@@ -1,4 +0,0 @@
+-package com.ylw;
+-
+-public class com.ylw.pullrefreshlib {
+-}
+-- 
+2.9.0.windows.1
+
