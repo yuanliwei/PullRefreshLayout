@@ -1,32 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:gravity="center"
-             android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="70dp"
-        android:background="#3388FF88"
         android:gravity="center"
-        android:paddingLeft="90dp"
-        android:paddingRight="90dp"
-        android:text="BOTTOM"/>
+        android:orientation="vertical"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp">
+
+        <TextView
+            android:id="@+id/tv_refresh_down_tip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingTop="5dp"
+            android:text="@string/tv_refresh_down"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/tv_refresh_down_load"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/tv_refresh_load"
+            android:textColor="@android:color/black"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/tv_refresh_down_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingBottom="5dp"
+            android:text="上次刷新时间：2016-6-30 11:09" />
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/pb_refresh_bottom"
         style="@style/Widget.AppCompat.ProgressBar"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_gravity="center|start"
-        android:layout_marginLeft="10dp"/>
+        android:layout_marginLeft="20dp"
+        android:indeterminateBehavior="repeat"
+
+        android:indeterminateDrawable="@drawable/pb_draw"
+        android:indeterminateOnly="true" />
 
     <ImageView
         android:id="@+id/iv_refresh_head_up"
-        android:layout_width="18dp"
-        android:layout_height="30dp"
+        android:layout_width="15dp"
+        android:layout_height="25dp"
         android:layout_gravity="center|start"
         android:layout_marginLeft="28dp"
-        android:background="@drawable/refresh_up"/>
+        android:background="@drawable/refresh_up" />
+
 </FrameLayout>

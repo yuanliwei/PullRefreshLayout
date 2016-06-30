@@ -23,6 +23,9 @@ public class RefreshView implements IRefreshView {
     private TextView tvUpRefreshTip;
     private TextView tvUpRefreshLoad;
     private TextView tvUpRefreshTime;
+    private TextView tvDownRefreshTip;
+    private TextView tvDownRefreshLoad;
+    private TextView tvDownRefreshTime;
 
     @Override
     public void init(Context context, PullRefreshLayout pullRefreshLayout) {
@@ -37,6 +40,9 @@ public class RefreshView implements IRefreshView {
         tvUpRefreshTip = (TextView) headView.findViewById(R.id.tv_refresh_up_tip);
         tvUpRefreshLoad = (TextView) headView.findViewById(R.id.tv_refresh_up_load);
         tvUpRefreshTime = (TextView) headView.findViewById(R.id.tv_refresh_up_time);
+        tvDownRefreshTip = (TextView) bottomView.findViewById(R.id.tv_refresh_down_tip);
+        tvDownRefreshLoad = (TextView) bottomView.findViewById(R.id.tv_refresh_down_load);
+        tvDownRefreshTime = (TextView) bottomView.findViewById(R.id.tv_refresh_down_time);
         ivDownRefresh = (ImageView) bottomView.findViewById(R.id.iv_refresh_head_up);
         pbBottomRefresh = (ProgressBar) bottomView.findViewById(R.id.pb_refresh_bottom);
     }
@@ -52,9 +58,13 @@ public class RefreshView implements IRefreshView {
         ivUpRefresh.setVisibility(View.VISIBLE);
         ivDownRefresh.setVisibility(View.VISIBLE);
         tvUpRefreshTip.setText("下拉刷新...");
+        tvDownRefreshTip.setText("上拉刷新...");
         tvUpRefreshLoad.setVisibility(View.INVISIBLE);
         tvUpRefreshTip.setVisibility(View.VISIBLE);
         tvUpRefreshTime.setVisibility(View.VISIBLE);
+        tvDownRefreshLoad.setVisibility(View.INVISIBLE);
+        tvDownRefreshTip.setVisibility(View.VISIBLE);
+        tvDownRefreshTime.setVisibility(View.VISIBLE);
         pbRefresh.setVisibility(View.INVISIBLE);
         pbBottomRefresh.setVisibility(View.INVISIBLE);
         roate2(ivUpRefresh, context);
@@ -66,9 +76,13 @@ public class RefreshView implements IRefreshView {
         ivUpRefresh.setVisibility(View.VISIBLE);
         ivDownRefresh.setVisibility(View.VISIBLE);
         tvUpRefreshTip.setText("放开以刷新...");
+        tvDownRefreshTip.setText("放开以刷新...");
         tvUpRefreshLoad.setVisibility(View.INVISIBLE);
         tvUpRefreshTip.setVisibility(View.VISIBLE);
         tvUpRefreshTime.setVisibility(View.VISIBLE);
+        tvDownRefreshLoad.setVisibility(View.INVISIBLE);
+        tvDownRefreshTip.setVisibility(View.VISIBLE);
+        tvDownRefreshTime.setVisibility(View.VISIBLE);
         pbRefresh.setVisibility(View.INVISIBLE);
         pbBottomRefresh.setVisibility(View.INVISIBLE);
         roate1(ivUpRefresh, context);
@@ -84,12 +98,15 @@ public class RefreshView implements IRefreshView {
         tvUpRefreshLoad.setVisibility(View.VISIBLE);
         tvUpRefreshTip.setVisibility(View.INVISIBLE);
         tvUpRefreshTime.setVisibility(View.INVISIBLE);
+        tvDownRefreshLoad.setVisibility(View.VISIBLE);
+        tvDownRefreshTip.setVisibility(View.INVISIBLE);
+        tvDownRefreshTime.setVisibility(View.INVISIBLE);
         pbRefresh.setVisibility(View.VISIBLE);
         pbBottomRefresh.setVisibility(View.VISIBLE);
     }
 
     public void setRefreshTime(String time) {
-        if(time==null){
+        if (time == null) {
             tvUpRefreshTime.setText("从未刷新过！");
         }
         tvUpRefreshTime.setText(time);
