@@ -13,8 +13,6 @@ public interface IRefreshView {
 
     void initView(View headView, View bottomView);
 
-    void initPbInvisible();
-
     void toStep1(Context context,int lastState, int state);
 
     void toStep2(Context context,int lastState, int state);

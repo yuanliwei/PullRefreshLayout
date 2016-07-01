@@ -45,13 +45,10 @@ public class RefreshView implements IRefreshView {
         tvDownRefreshTime = (TextView) bottomView.findViewById(R.id.tv_refresh_down_time);
         ivDownRefresh = (ImageView) bottomView.findViewById(R.id.iv_refresh_head_up);
         pbBottomRefresh = (ProgressBar) bottomView.findViewById(R.id.pb_refresh_bottom);
-    }
-
-    @Override
-    public void initPbInvisible() {
         pbRefresh.setVisibility(View.INVISIBLE);
         pbBottomRefresh.setVisibility(View.INVISIBLE);
     }
+
 
     @Override
     public void toStep1(Context context, int lastState, int state) {

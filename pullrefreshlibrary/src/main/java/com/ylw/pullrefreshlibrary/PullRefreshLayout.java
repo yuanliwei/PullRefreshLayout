@@ -107,7 +107,6 @@ public class PullRefreshLayout extends FrameLayout {
     private void initHeadBottomViews() {
         headView.setVisibility(INVISIBLE);
         bottomView.setVisibility(INVISIBLE);
-        refreshView.initPbInvisible();
     }
 
     private void initDragger() {
