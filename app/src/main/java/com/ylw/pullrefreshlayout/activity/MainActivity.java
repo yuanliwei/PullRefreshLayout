@@ -44,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.list_view_btn:
                 intent = new Intent(this, ListViewActivity.class);
                 break;
+            case R.id.list_foot_view_btn:
+                intent = new Intent(this, ListFooterViewActivity.class);
+                break;
             case R.id.scroll_view_btn:
                 intent = new Intent(this, ScrollViewActivity.class);
                 break;

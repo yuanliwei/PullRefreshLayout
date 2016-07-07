@@ -25,6 +25,10 @@
             android:label="@string/title_activity_list_view"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
+            android:name=".activity.ListFooterViewActivity"
+            android:label="@string/title_activity_list_view"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
             android:name=".activity.ViewPagerActivity"
             android:label="@string/title_activity_list_view"
             android:theme="@style/AppTheme.NoActionBar"></activity>
