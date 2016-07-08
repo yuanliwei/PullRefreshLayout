@@ -60,6 +60,21 @@ public class PullRefreshLayout extends FrameLayout {
         init(context, attrs, defStyle);
     }
 
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+//        requestLayout();
+    }
+
+    @Override
+    protected void onVisibilityChanged(View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if (changedView == this && visibility == VISIBLE) {
+            requestLayout();
+        }
+        requestLayout();
+    }
+
     private void init(Context context, AttributeSet attrs, int defStyle) {
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
