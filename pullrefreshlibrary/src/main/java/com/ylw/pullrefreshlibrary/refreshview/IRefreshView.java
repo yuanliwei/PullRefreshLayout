@@ -19,4 +19,5 @@ public interface IRefreshView {
 
     void toStep3(Context context,int lastState, int state);
 
+    void setRefreshTime(String time);
 }

@@ -11,4 +11,6 @@
     <string name="recycler_view">RECYCLERVIEW</string>
     <string name="title_activity_view_pager">ViewPagerActivity</string>
     <string name="view_pager">VIEWPAGER</string>
+    <string name="listfooterview">ListFooterView</string>
+    <string name="load_error">加载出错</string>
 </resources>

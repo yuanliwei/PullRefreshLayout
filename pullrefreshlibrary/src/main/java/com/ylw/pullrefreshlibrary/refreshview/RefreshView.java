@@ -103,10 +103,7 @@ public class RefreshView implements IRefreshView {
     }
 
     public void setRefreshTime(String time) {
-        if (time == null) {
-            tvUpRefreshTime.setText("从未刷新过！");
-        }
-        tvUpRefreshTime.setText(time);
+        tvUpRefreshTime.setText("上次刷新时间：" + time);
     }
 
     public void roate1(View v, Context context) {

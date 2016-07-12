@@ -380,11 +380,16 @@ public class PullRefreshLayout extends FrameLayout {
                 canPullUp = contentview.getMeasuredHeight() == contentView.getScrollY() + contentView.getHeight();
             } else if (contentView instanceof AbsListView) {
                 ListView view = (ListView) contentView;
+                int cCount = view.getChildCount();
+                if (cCount == 0) {
+                    canPullDown = true;
+                    canPullUp = true;
+                }
                 if (hasSetListener) return;
                 hasSetListener = true;
                 view.setOnScrollListener(new AbsListView.OnScrollListener() {
                     private int scrollState = SCROLL_STATE_IDLE;
-
+boolean s=false;
                     @Override
                     public void onScrollStateChanged(AbsListView view, int scrollState) {
                         this.scrollState = scrollState;
@@ -399,12 +404,18 @@ public class PullRefreshLayout extends FrameLayout {
                             if (firstVisibleItemView != null && firstVisibleItemView.getTop() == 0) {
                                 canPullDown = true;
                                 canPullUp = false;
+                                s=false;
                             }
                         } else if ((firstVisibleItem + visibleItemCount) == totalItemCount) {
                             View lastVisibleItemView = view.getChildAt(view.getChildCount() - 1);
                             if (lastVisibleItemView != null && lastVisibleItemView.getBottom() == view.getHeight()) {
                                 canPullDown = false;
                                 canPullUp = true;
+
+                                if (onScrollBottomListener != null&& !s){
+                                    onScrollBottomListener.onScrollBottom();
+                            }
+                            s=true;
                             }
                         }
                     }
@@ -434,6 +445,8 @@ public class PullRefreshLayout extends FrameLayout {
                 }
                 if (Offset + Extent >= Range) {
                     canPullUp = true;
+                    if (onScrollBottomListener != null)
+                        onScrollBottomListener.onScrollBottom();
                 }
             }
 
@@ -475,6 +488,11 @@ public class PullRefreshLayout extends FrameLayout {
 
     };
 
+    private AbsListView.OnScrollListener onScrollListener;
+
+    public void setOnScrollListener(AbsListView.OnScrollListener onScrollListener) {
+        this.onScrollListener = onScrollListener;
+    }
 
     public interface PullCallBack {
         int STATE_STEP1 = 0;    // 不能刷新
@@ -491,9 +509,14 @@ public class PullRefreshLayout extends FrameLayout {
 
     private OnPullDownListener onPullDownListener;
     private OnPullListener onPullListener;
+    private OnScrollBottomListener onScrollBottomListener;
 
     public interface OnPullDownListener {
         void onRefresh();
+    }
+
+    public interface OnScrollBottomListener {
+        void onScrollBottom();
     }
 
     public interface OnPullListener {
@@ -504,6 +527,10 @@ public class PullRefreshLayout extends FrameLayout {
 
     private boolean enablePullDown = false; // 启用下拉
     private boolean enablePullUp = false;   // 启用上拉
+
+    public void setOnScrollBottomListener(OnScrollBottomListener onScrollBottomListener) {
+        this.onScrollBottomListener = onScrollBottomListener;
+    }
 
     // 设置监听 设置后才能进行有下拉刷新动作
     public void setOnPullDownListener(OnPullDownListener onPullDownListener) {

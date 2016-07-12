@@ -19,6 +19,7 @@
             android:gravity="center_horizontal"
             android:paddingTop="5dp"
             android:text="@string/tv_refresh"
+            android:textSize="12sp"
             android:textColor="@android:color/black" />
         <TextView
             android:id="@+id/tv_refresh_up_load"
@@ -26,6 +27,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="@string/tv_refresh_load"
+            android:textSize="12sp"
             android:textColor="@android:color/black"
             android:visibility="invisible"/>
 
@@ -35,6 +37,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:paddingBottom="5dp"
+            android:textSize="12sp"
             android:text="上次刷新时间：2016-6-30 11:09" />
     </LinearLayout>
 
@@ -43,18 +46,18 @@
         style="@style/Widget.AppCompat.ProgressBar"
         android:layout_width="30dp"
         android:layout_height="30dp"
+        android:padding="4dp"
         android:layout_gravity="center|start"
         android:layout_marginLeft="20dp"
         android:indeterminateBehavior="repeat"
-
         android:indeterminateDrawable="@drawable/pb_draw"
         android:indeterminateOnly="true" />
 
     <ImageView
         android:id="@+id/iv_refresh_head_down"
-        android:layout_width="15dp"
-        android:layout_height="25dp"
+        android:layout_width="12dp"
+        android:layout_height="22dp"
         android:layout_gravity="center|start"
-        android:layout_marginLeft="28dp"
+        android:layout_marginLeft="29dp"
         android:background="@drawable/refresh_down" />
 </FrameLayout>
