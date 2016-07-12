@@ -60,6 +60,21 @@ public class PullRefreshLayout extends FrameLayout {
         init(context, attrs, defStyle);
     }
 
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+//        requestLayout();
+    }
+
+    @Override
+    protected void onVisibilityChanged(View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if (changedView == this && visibility == VISIBLE) {
+            requestLayout();
+        }
+        requestLayout();
+    }
+
     private void init(Context context, AttributeSet attrs, int defStyle) {
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
@@ -107,7 +122,6 @@ public class PullRefreshLayout extends FrameLayout {
     private void initHeadBottomViews() {
         headView.setVisibility(INVISIBLE);
         bottomView.setVisibility(INVISIBLE);
-        refreshView.initPbInvisible();
     }
 
     private void initDragger() {
@@ -141,6 +155,9 @@ public class PullRefreshLayout extends FrameLayout {
                     pullCallBack.onPullStateChange(PullCallBack.STATE_STEP2);
                 } else {
                     pullCallBack.onPullStateChange(PullCallBack.STATE_STEP1);
+                }
+                if (enablePullDown) {
+                    headView.setVisibility(VISIBLE);
                 }
                 return top - dy / 2;
             }
@@ -519,7 +536,7 @@ boolean s=false;
     public void setOnPullDownListener(OnPullDownListener onPullDownListener) {
         this.onPullDownListener = onPullDownListener;
         enablePullDown = true;
-        headView.setVisibility(VISIBLE);
+//        headView.setVisibility(VISIBLE);
     }
 
     // 设置监听 设置后才能进行有上下拉刷新动作
