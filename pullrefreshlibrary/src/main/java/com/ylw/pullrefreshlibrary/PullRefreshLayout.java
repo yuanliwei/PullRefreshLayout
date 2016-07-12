@@ -156,6 +156,9 @@ public class PullRefreshLayout extends FrameLayout {
                 } else {
                     pullCallBack.onPullStateChange(PullCallBack.STATE_STEP1);
                 }
+                if (enablePullDown) {
+                    headView.setVisibility(VISIBLE);
+                }
                 return top - dy / 2;
             }
 
@@ -506,7 +509,7 @@ public class PullRefreshLayout extends FrameLayout {
     public void setOnPullDownListener(OnPullDownListener onPullDownListener) {
         this.onPullDownListener = onPullDownListener;
         enablePullDown = true;
-        headView.setVisibility(VISIBLE);
+//        headView.setVisibility(VISIBLE);
     }
 
     // 设置监听 设置后才能进行有上下拉刷新动作
