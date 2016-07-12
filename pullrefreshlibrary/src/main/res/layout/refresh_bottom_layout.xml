@@ -1,56 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="vertical">
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:gravity="center"
+             android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingLeft="50dp"
-        android:paddingRight="50dp">
+        android:paddingLeft="50dp">
 
         <TextView
             android:id="@+id/tv_refresh_down_tip"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:paddingTop="5dp"
             android:text="@string/tv_refresh_down"
-            android:textColor="@android:color/black" />
-
-        <TextView
-            android:id="@+id/tv_refresh_down_load"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="@string/tv_refresh_load"
             android:textColor="@android:color/black"
-            android:visibility="invisible" />
+            android:textSize="14sp"/>
+
 
         <TextView
             android:id="@+id/tv_refresh_down_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
             android:gravity="center_horizontal"
-            android:paddingBottom="5dp"
-            android:text="上次刷新时间：2016-6-30 11:09" />
+            android:text="上次刷新时间：2016-6-30 11:09"
+            android:textSize="14sp"/>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_refresh_down_load"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:gravity="center"
+        android:text="@string/tv_refresh_load"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        android:visibility="invisible"/>
 
     <ProgressBar
         android:id="@+id/pb_refresh_bottom"
         style="@style/Widget.AppCompat.ProgressBar"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:padding="4dp"
         android:layout_gravity="center|start"
         android:layout_marginLeft="20dp"
         android:indeterminateBehavior="repeat"
         android:indeterminateDrawable="@drawable/pb_draw"
-        android:indeterminateOnly="true" />
+        android:indeterminateOnly="true"
+        android:padding="4dp"/>
 
     <ImageView
         android:id="@+id/iv_refresh_head_up"
@@ -58,6 +60,6 @@
         android:layout_height="22dp"
         android:layout_gravity="center|start"
         android:layout_marginLeft="29dp"
-        android:background="@drawable/refresh_up" />
+        android:background="@drawable/refresh_up"/>
 
 </FrameLayout>
