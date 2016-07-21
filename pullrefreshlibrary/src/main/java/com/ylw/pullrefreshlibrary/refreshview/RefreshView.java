@@ -54,6 +54,8 @@ public class RefreshView implements IRefreshView {
     public void toStep1(Context context, int lastState, int state) {
         ivUpRefresh.setVisibility(View.VISIBLE);
         ivDownRefresh.setVisibility(View.VISIBLE);
+        ivUpRefresh.setBackgroundResource(R.drawable.refresh_down);
+        ivDownRefresh.setBackgroundResource(R.drawable.refresh_up);
         tvUpRefreshTip.setText("下拉刷新...");
         tvDownRefreshTip.setText("上拉刷新...");
         tvUpRefreshLoad.setVisibility(View.INVISIBLE);
@@ -92,6 +94,8 @@ public class RefreshView implements IRefreshView {
         ivUpRefresh.clearAnimation();
         ivDownRefresh.setVisibility(View.INVISIBLE);
         ivDownRefresh.clearAnimation();
+        tvUpRefreshLoad.setText("正在刷新...");
+        tvDownRefreshLoad.setText("正在刷新...");
         tvUpRefreshLoad.setVisibility(View.VISIBLE);
         tvUpRefreshTip.setVisibility(View.INVISIBLE);
         tvUpRefreshTime.setVisibility(View.INVISIBLE);
@@ -100,6 +104,26 @@ public class RefreshView implements IRefreshView {
         tvDownRefreshTime.setVisibility(View.INVISIBLE);
         pbRefresh.setVisibility(View.VISIBLE);
         pbBottomRefresh.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void toStep4(Context context) {
+        ivUpRefresh.setVisibility(View.VISIBLE);
+        ivUpRefresh.clearAnimation();
+        ivUpRefresh.setBackgroundResource(R.drawable.refresh_finish);
+        ivDownRefresh.setVisibility(View.VISIBLE);
+        ivDownRefresh.clearAnimation();
+        ivDownRefresh.setBackgroundResource(R.drawable.refresh_finish);
+        tvUpRefreshLoad.setVisibility(View.VISIBLE);
+        tvUpRefreshLoad.setText("刷新完成！");
+        tvUpRefreshTip.setVisibility(View.INVISIBLE);
+        tvUpRefreshTime.setVisibility(View.INVISIBLE);
+        tvDownRefreshLoad.setVisibility(View.VISIBLE);
+        tvDownRefreshLoad.setText("刷新完成！");
+        tvDownRefreshTip.setVisibility(View.INVISIBLE);
+        tvDownRefreshTime.setVisibility(View.INVISIBLE);
+        pbRefresh.setVisibility(View.INVISIBLE);
+        pbBottomRefresh.setVisibility(View.INVISIBLE);
     }
 
     public void setRefreshTime(String time) {
