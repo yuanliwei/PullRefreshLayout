@@ -59,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.view_pager_btn:
                 intent = new Intent(this, ViewPagerActivity.class);
                 break;
+            case R.id.do_layout_list:
+                intent = new Intent(this, DoLayoutListActivity.class);
+                break;
         }
         startActivity(intent);
     }

@@ -238,6 +238,11 @@ public class PullRefreshLayout extends FrameLayout {
         } else {
             headView.layout(0, t - vtH, w, t);
         }
+
+//        ViewGroup.LayoutParams ltp = headView.getLayoutParams();
+//        ViewGroup.LayoutParams lmp = contentView.getLayoutParams();
+//        ViewGroup.LayoutParams lbp = bottomView.getLayoutParams();
+//        ltp.
     }
 
     public void countLayout() {
@@ -268,12 +273,15 @@ public class PullRefreshLayout extends FrameLayout {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        int h = getMeasuredHeight();
-        super.onLayout(changed, l, t, r, b);
-        FrameLayout.LayoutParams ltp = (LayoutParams) headView.getLayoutParams();
-        FrameLayout.LayoutParams lbp = (LayoutParams) bottomView.getLayoutParams();
-        ltp.setMargins(0, -vtH, 0, 0);
-        lbp.setMargins(0, h, 0, 0);
+        if (contentView.getTop() !=0 ) return;
+        if (!(refreshing || refreshingDown)) {
+            int h = getMeasuredHeight();
+            super.onLayout(changed, l, t, r, b);
+            FrameLayout.LayoutParams ltp = (LayoutParams) headView.getLayoutParams();
+            FrameLayout.LayoutParams lbp = (LayoutParams) bottomView.getLayoutParams();
+            ltp.setMargins(0, -vtH, 0, 0);
+            lbp.setMargins(0, h, 0, 0);
+        }
 //        if (firstLayout && !isInEditMode()) {
 //            firstLayout = false;
 //            //初始化内部控件
@@ -553,16 +561,21 @@ public class PullRefreshLayout extends FrameLayout {
     public void complete() {
         if (upRefreshing || downRefreshing) {
             toStep4();
-            postInvalidateDelayed(3000);
-            mDragger.smoothSlideViewTo(contentView, 0, 0);
-            upRefreshing = false;
-            downRefreshing = false;
-            refreshing = false;
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mDragger.smoothSlideViewTo(contentView, 0, 0);
+                    invalidate();
+                    upRefreshing = false;
+                    downRefreshing = false;
+                    refreshing = false;
+                }
+            }, 400);
         }
     }
 
     private void toStep4() {
-        Log.d(TAG, "toStep3: ==========");
+        Log.d(TAG, "toStep4: ==========");
         refreshView.toStep4(getContext());
     }
 

@@ -13,4 +13,6 @@
     <string name="view_pager">VIEWPAGER</string>
     <string name="listfooterview">ListFooterView</string>
     <string name="load_error">加载出错</string>
+    <string name="title_activity_do_layout_list">DoLayoutListActivity</string>
+    <string name="dolayoutlistview">DOLAYOUTLISTVIEW</string>
 </resources>
