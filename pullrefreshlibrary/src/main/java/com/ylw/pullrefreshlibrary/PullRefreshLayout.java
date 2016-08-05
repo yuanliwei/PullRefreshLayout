@@ -389,7 +389,8 @@ public class PullRefreshLayout extends FrameLayout {
                 hasSetListener = true;
                 view.setOnScrollListener(new AbsListView.OnScrollListener() {
                     private int scrollState = SCROLL_STATE_IDLE;
-boolean s=false;
+                    boolean s = false;
+
                     @Override
                     public void onScrollStateChanged(AbsListView view, int scrollState) {
                         this.scrollState = scrollState;
@@ -404,7 +405,7 @@ boolean s=false;
                             if (firstVisibleItemView != null && firstVisibleItemView.getTop() == 0) {
                                 canPullDown = true;
                                 canPullUp = false;
-                                s=false;
+                                s = false;
                             }
                         } else if ((firstVisibleItem + visibleItemCount) == totalItemCount) {
                             View lastVisibleItemView = view.getChildAt(view.getChildCount() - 1);
@@ -412,10 +413,10 @@ boolean s=false;
                                 canPullDown = false;
                                 canPullUp = true;
 
-                                if (onScrollBottomListener != null&& !s){
+                                if (onScrollBottomListener != null && !s) {
                                     onScrollBottomListener.onScrollBottom();
-                            }
-                            s=true;
+                                }
+                                s = true;
                             }
                         }
                     }
@@ -482,8 +483,8 @@ boolean s=false;
         }
 
         private void toStep3(int lastState, int state) {
-            Log.d(TAG, "toStep3: ==========");
             refreshView.toStep3(getContext(), lastState, state);
+            Log.d(TAG, "toStep3: ==========");
         }
 
     };
@@ -498,6 +499,7 @@ boolean s=false;
         int STATE_STEP1 = 0;    // 不能刷新
         int STATE_STEP2 = 1;    // 可以刷新
         int STATE_STEP3 = 2;    // 刷新中
+        int STATE_STEP4 = 3;    // 刷新完成
 
         boolean canPullDown();
 
@@ -550,12 +552,18 @@ boolean s=false;
 
     public void complete() {
         if (upRefreshing || downRefreshing) {
+            toStep4();
+            postInvalidateDelayed(3000);
             mDragger.smoothSlideViewTo(contentView, 0, 0);
-            postInvalidate();
             upRefreshing = false;
             downRefreshing = false;
             refreshing = false;
         }
+    }
+
+    private void toStep4() {
+        Log.d(TAG, "toStep3: ==========");
+        refreshView.toStep4(getContext());
     }
 
     private void refreshing() {
