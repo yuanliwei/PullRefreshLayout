@@ -15,4 +15,8 @@
     <string name="load_error">加载出错</string>
     <string name="title_activity_do_layout_list">DoLayoutListActivity</string>
     <string name="dolayoutlistview">DOLAYOUTLISTVIEW</string>
+    <string name="title_activity_empty_list">EmptyListActivity</string>
+    <string name="empty_list_view">EMPTY_LIST_VIEW</string>
+    <string name="title_activity_liner_layout">LinerLayoutActivity</string>
+    <string name="linerlayout">LINERLAYOUT</string>
 </resources>

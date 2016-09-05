@@ -172,6 +172,8 @@ public class PullRefreshLayout extends FrameLayout {
                     // 计算View布局
                     if (!refreshing)
                         countLayout();
+                    // 计算一下看是否需要调用 onScrollBottom()方法
+                    pullCallBack.canPullDown();
                 } else if (state == ViewDragHelper.STATE_DRAGGING) {
                     refreshing = false;
                 }
@@ -273,7 +275,7 @@ public class PullRefreshLayout extends FrameLayout {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (contentView.getTop() !=0 ) return;
+        if (contentView.getTop() != 0) return;
         if (!(refreshing || refreshingDown)) {
             int h = getMeasuredHeight();
             super.onLayout(changed, l, t, r, b);
@@ -380,6 +382,8 @@ public class PullRefreshLayout extends FrameLayout {
             return canPullUp && enablePullUp;
         }
 
+        private boolean onScrollBottom = false;
+
         private void countIt() {
             if (contentView instanceof ScrollView) {
                 canPullDown = contentView.getScrollY() == 0;
@@ -454,9 +458,22 @@ public class PullRefreshLayout extends FrameLayout {
                 }
                 if (Offset + Extent >= Range) {
                     canPullUp = true;
-                    if (onScrollBottomListener != null)
+                    if (onScrollBottomListener != null && !onScrollBottom)
                         onScrollBottomListener.onScrollBottom();
+                    onScrollBottom = true;
+                } else {
+                    onScrollBottom = false;
                 }
+                if (hasSetListener) return;
+                hasSetListener = true;
+                view.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            countIt();
+                        }
+                    }
+                });
             }
 
         }

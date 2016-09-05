@@ -49,6 +49,16 @@
             android:label="@string/title_activity_do_layout_list"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <activity
+            android:name=".activity.EmptyListActivity"
+            android:label="@string/title_activity_empty_list"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name=".activity.LinerLayoutActivity"
+            android:label="@string/title_activity_liner_layout"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

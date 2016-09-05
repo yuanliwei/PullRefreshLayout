@@ -37,6 +37,13 @@
         android:text="@string/scroll_view"/>
 
     <Button
+        android:id="@+id/linerlayou_view_btn"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:onClick="onClick"
+        android:text="@string/linerlayout"/>
+
+    <Button
         android:id="@+id/web_view_btn"
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -63,4 +70,12 @@
         android:layout_height="60dp"
         android:onClick="onClick"
         android:text="@string/dolayoutlistview"/>
+
+    <Button
+        android:id="@+id/empty_list_view_btn"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:onClick="onClick"
+        android:text="@string/empty_list_view"/>
+
 </LinearLayout>

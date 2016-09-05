@@ -44,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.list_view_btn:
                 intent = new Intent(this, ListViewActivity.class);
                 break;
+            case R.id.empty_list_view_btn:
+                intent = new Intent(this, EmptyListActivity.class);
+                break;
             case R.id.list_foot_view_btn:
                 intent = new Intent(this, ListFooterViewActivity.class);
                 break;
@@ -58,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.view_pager_btn:
                 intent = new Intent(this, ViewPagerActivity.class);
+                break;
+            case R.id.linerlayou_view_btn:
+                intent = new Intent(this, LinerLayoutActivity.class);
                 break;
             case R.id.do_layout_list:
                 intent = new Intent(this, DoLayoutListActivity.class);
