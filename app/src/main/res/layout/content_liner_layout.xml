@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="true"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    >
+
+
+    <com.ylw.pullrefreshlibrary.PullRefreshLayout
+        android:id="@+id/pull_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFCCCCCC"
+        app:refreshView="0">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:gravity="center"
+
+                android:background="#4488FF88"
+                android:text="TEXT_RED"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:background="?android:attr/selectableItemBackground"
+                android:layout_height="60dp"
+                android:gravity="center"
+                android:clickable="true"
+                android:text="TEXT_GREEN"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="#448888FF"
+                android:gravity="center"
+                android:text="TEXT_BLUE"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="#44FF8888"
+                android:gravity="center"
+                android:text="TEXT_RED"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="#4488FF88"
+                android:gravity="center"
+                android:text="TEXT_GREEN"/>
+
+
+        </LinearLayout>
+    </com.ylw.pullrefreshlibrary.PullRefreshLayout>
+</RelativeLayout>
