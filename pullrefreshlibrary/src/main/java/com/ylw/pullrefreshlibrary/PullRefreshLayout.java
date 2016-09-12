@@ -174,6 +174,9 @@ public class PullRefreshLayout extends FrameLayout {
                         countLayout();
                     // 计算一下看是否需要调用 onScrollBottom()方法
                     pullCallBack.canPullDown();
+                    // 当一个刷新流程全部走完后调用这个方法
+                    if (onCompleteListener != null && !upRefreshing && !downRefreshing && !refreshing)
+                        onCompleteListener.onComplete();
                 } else if (state == ViewDragHelper.STATE_DRAGGING) {
                     refreshing = false;
                 }
@@ -537,6 +540,7 @@ public class PullRefreshLayout extends FrameLayout {
     private OnPullDownListener onPullDownListener;
     private OnPullListener onPullListener;
     private OnScrollBottomListener onScrollBottomListener;
+    private OnCompleteListener onCompleteListener;
 
     public interface OnPullDownListener {
         void onRefresh();
@@ -544,6 +548,10 @@ public class PullRefreshLayout extends FrameLayout {
 
     public interface OnScrollBottomListener {
         void onScrollBottom();
+    }
+
+    public interface OnCompleteListener {
+        void onComplete();
     }
 
     public interface OnPullListener {
@@ -573,6 +581,11 @@ public class PullRefreshLayout extends FrameLayout {
         enablePullUp = true;
         headView.setVisibility(VISIBLE);
         bottomView.setVisibility(VISIBLE);
+    }
+
+    // 当下拉刷新控件完全归位后会调用这个接口
+    public void setOnCompleteListener(OnCompleteListener onCompleteListener) {
+        this.onCompleteListener = onCompleteListener;
     }
 
     public void complete() {
