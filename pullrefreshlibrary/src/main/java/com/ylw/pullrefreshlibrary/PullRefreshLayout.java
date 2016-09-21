@@ -613,6 +613,10 @@ public class PullRefreshLayout extends FrameLayout {
 
     }
 
+    public boolean isRefreshing() {
+        return contentView.getTop() != 0;
+    }
+
     public IRefreshView getRefreshView() {
         return refreshView;
     }
