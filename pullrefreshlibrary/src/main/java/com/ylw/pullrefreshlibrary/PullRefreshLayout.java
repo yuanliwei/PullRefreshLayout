@@ -34,6 +34,7 @@ public class PullRefreshLayout extends FrameLayout {
     private ViewDragHelper mDragger;
     private View dragView;
     private View contentView;
+    private View realContentView;
 
     private boolean downRefreshing = false;
     private boolean upRefreshing = false;
@@ -262,8 +263,9 @@ public class PullRefreshLayout extends FrameLayout {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (contentView == null)
             contentView = getChildAt(2);        //这个必须是WebView
+        if (realContentView == null)
+            realContentView = contentView;
         if (isInEditMode()) return;
         if (vtH == 0) vtH = headView.getMeasuredHeight();
         if (vbH == 0) vbH = bottomView.getMeasuredHeight();
@@ -393,13 +395,13 @@ public class PullRefreshLayout extends FrameLayout {
         private boolean onScrollBottom = false;
 
         private void countIt() {
-            if (contentView instanceof ScrollView) {
-                canPullDown = contentView.getScrollY() == 0;
+            if (realContentView instanceof ScrollView) {
+                canPullDown = realContentView.getScrollY() == 0;
 
-                View contentview = ((ViewGroup) contentView).getChildAt(0);
-                canPullUp = contentview.getMeasuredHeight() == contentView.getScrollY() + contentView.getHeight();
-            } else if (contentView instanceof AbsListView) {
-                ListView view = (ListView) contentView;
+                View contentview = ((ViewGroup) realContentView).getChildAt(0);
+                canPullUp = contentview.getMeasuredHeight() == realContentView.getScrollY() + realContentView.getHeight();
+            } else if (realContentView instanceof AbsListView) {
+                ListView view = (ListView) realContentView;
                 int cCount = view.getChildCount();
                 if (cCount == 0) {
                     canPullDown = true;
@@ -441,8 +443,8 @@ public class PullRefreshLayout extends FrameLayout {
                         }
                     }
                 });
-            } else if (contentView instanceof WebView) {
-                WebView web = (WebView) contentView;
+            } else if (realContentView instanceof WebView) {
+                WebView web = (WebView) realContentView;
                 canPullDown = false;
                 canPullUp = false;
                 if (web.getScrollY() == 0) {
@@ -452,8 +454,8 @@ public class PullRefreshLayout extends FrameLayout {
 //                    //已经处于底端
 //                    canPullUp = true;
 //                }
-            } else if (contentView instanceof RecyclerView) {
-                RecyclerView view = (RecyclerView) contentView;
+            } else if (realContentView instanceof RecyclerView) {
+                RecyclerView view = (RecyclerView) realContentView;
                 canPullDown = false;
                 canPullUp = false;
 
@@ -627,6 +629,6 @@ public class PullRefreshLayout extends FrameLayout {
     }
 
     public void setContentView(View contentView) {
-        this.contentView = contentView;
+        this.realContentView = contentView;
     }
 }
