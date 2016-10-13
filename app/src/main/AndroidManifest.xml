@@ -59,6 +59,6 @@
             android:label="@string/title_activity_liner_layout"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
-    </application>
+     </application>
 
 </manifest>

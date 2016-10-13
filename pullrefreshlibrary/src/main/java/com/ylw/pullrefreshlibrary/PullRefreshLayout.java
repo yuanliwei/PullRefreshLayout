@@ -363,7 +363,11 @@ public class PullRefreshLayout extends FrameLayout {
             }
             return true;
         }
-        mDragger.processTouchEvent(event);
+        try {
+            mDragger.processTouchEvent(event);
+        } catch (Exception e) {
+            Log.w(TAG, "onTouchEvent: " + e.getMessage());
+        }
         return true;
     }
 
@@ -619,5 +623,9 @@ public class PullRefreshLayout extends FrameLayout {
 
     public IRefreshView getRefreshView() {
         return refreshView;
+    }
+
+    public void setContentView(View contentView) {
+        this.contentView = contentView;
     }
 }
