@@ -262,7 +262,8 @@ public class PullRefreshLayout extends FrameLayout {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        contentView = getChildAt(2);        //这个必须是WebView
+        if (contentView == null)
+            contentView = getChildAt(2);        //这个必须是WebView
         if (isInEditMode()) return;
         if (vtH == 0) vtH = headView.getMeasuredHeight();
         if (vbH == 0) vbH = bottomView.getMeasuredHeight();
