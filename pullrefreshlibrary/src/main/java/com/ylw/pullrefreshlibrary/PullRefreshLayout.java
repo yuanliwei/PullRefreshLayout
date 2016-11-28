@@ -263,7 +263,7 @@ public class PullRefreshLayout extends FrameLayout {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            contentView = getChildAt(2);        //这个必须是WebView
+        contentView = getChildAt(2);        //这个必须是WebView
         if (realContentView == null)
             realContentView = contentView;
         if (isInEditMode()) return;
@@ -375,6 +375,7 @@ public class PullRefreshLayout extends FrameLayout {
     }
 
 
+    private boolean enable = true;
     private PullCallBack pullCallBack = new PullCallBack() {
         private boolean canPullDown = true;
         private boolean canPullUp = true;
@@ -383,7 +384,7 @@ public class PullRefreshLayout extends FrameLayout {
         @Override
         public boolean canPullDown() {
             countIt();
-            return canPullDown && enablePullDown;
+            return enable && canPullDown && enablePullDown;
         }
 
         @Override
@@ -466,13 +467,20 @@ public class PullRefreshLayout extends FrameLayout {
                 if (Offset == 0) {
                     canPullDown = true;
                 }
-                if (Offset + Extent >= Range) {
-                    canPullUp = true;
-                    if (onScrollBottomListener != null && !onScrollBottom)
-                        onScrollBottomListener.onScrollBottom();
-                    onScrollBottom = true;
-                } else {
-                    onScrollBottom = false;
+                RecyclerView.Adapter adapter = view.getAdapter();
+                if (adapter != null) {
+                    int itemCount = adapter.getItemCount();
+                    View lastChild = view.getChildAt(view.getChildCount() - 1);
+                    int lastVisibleViewPosition = view.getChildAdapterPosition(lastChild);
+                    if (lastVisibleViewPosition == itemCount - 1) {
+                        if (onScrollBottomListener != null && !onScrollBottom)
+                            onScrollBottomListener.onScrollBottom();
+                        onScrollBottom = true;
+//                        Log.d(TAG, "countIt: onScrollBottomListener : true");
+                    } else {
+                        onScrollBottom = false;
+//                        Log.d(TAG, "countIt: onScrollBottomListener : false");
+                    }
                 }
                 if (hasSetListener) return;
                 hasSetListener = true;
@@ -630,5 +638,9 @@ public class PullRefreshLayout extends FrameLayout {
 
     public void setContentView(View contentView) {
         this.realContentView = contentView;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 }
