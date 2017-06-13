@@ -22,4 +22,6 @@ public interface IRefreshView {
     void toStep4(Context context);
 
     void setRefreshTime(String time);
+
+    void updatePercent(float percent);
 }

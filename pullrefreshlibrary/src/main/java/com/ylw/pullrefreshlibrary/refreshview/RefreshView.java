@@ -130,6 +130,11 @@ public class RefreshView implements IRefreshView {
         tvUpRefreshTime.setText("上次刷新时间：" + time);
     }
 
+    @Override
+    public void updatePercent(float percent) {
+
+    }
+
     public void roate1(View v, Context context) {
         Animation anim = AnimationUtils.loadAnimation(context, R.anim.roate_180_full_after_1);
         v.startAnimation(anim);

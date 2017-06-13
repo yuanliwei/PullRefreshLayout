@@ -20,4 +20,8 @@
     <string name="title_activity_liner_layout">LinerLayoutActivity</string>
     <string name="linerlayout">LINERLAYOUT</string>
     <string name="title_activity_main2">Main2Activity</string>
+    <string name="title_activity_custom_refresh_view_scroll_view">
+        CustomRefreshViewScrollViewActivity
+    </string>
+    <string name="custom_refresh_view">CUSTOM_REFRESH_VIEW</string>
 </resources>

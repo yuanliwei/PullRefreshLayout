@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
@@ -34,8 +35,10 @@ public class ListFooterViewActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        toolbar.setNavigationIcon(R.drawable.back);
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.actionModeCloseDrawable, typedValue, true);
 
+        toolbar.setNavigationIcon(typedValue.resourceId);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

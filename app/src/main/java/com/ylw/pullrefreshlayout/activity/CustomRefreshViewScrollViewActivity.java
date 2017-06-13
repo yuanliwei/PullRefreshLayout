@@ -12,12 +12,12 @@ import android.view.View;
 import com.ylw.pullrefreshlayout.R;
 import com.ylw.pullrefreshlibrary.PullRefreshLayout;
 
-public class LinerLayoutActivity extends AppCompatActivity {
+public class CustomRefreshViewScrollViewActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_liner_layout);
+        setContentView(R.layout.activity_custom_refresh_view_scroll_view);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -42,7 +42,6 @@ public class LinerLayoutActivity extends AppCompatActivity {
         });
 
 
-
         final PullRefreshLayout layout = (PullRefreshLayout) findViewById(R.id.pull_layout);
         layout.setOnPullDownListener(new PullRefreshLayout.OnPullDownListener() {
             @Override
@@ -55,8 +54,6 @@ public class LinerLayoutActivity extends AppCompatActivity {
                 }, 3000);
             }
         });
-
-
     }
 
 }

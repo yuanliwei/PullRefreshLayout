@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.WebSettings;
@@ -34,8 +35,10 @@ public class ViewPagerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_pager);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.back);
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.actionModeCloseDrawable, typedValue, true);
 
+        toolbar.setNavigationIcon(typedValue.resourceId);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

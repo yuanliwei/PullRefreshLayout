@@ -68,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.do_layout_list:
                 intent = new Intent(this, DoLayoutListActivity.class);
                 break;
+            case R.id.custom_refresh_view_scroll_view_btn:
+                intent = new Intent(this, CustomRefreshViewScrollViewActivity.class);
+                break;
         }
         startActivity(intent);
     }

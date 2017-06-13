@@ -82,6 +82,7 @@ public class PullRefreshLayout extends FrameLayout {
                 attrs, R.styleable.PullRefreshLayout, defStyle, 0);
 
         int refreshStyle = a.getInt(R.styleable.PullRefreshLayout_refreshView, 0);
+        String refreshClass = a.getString(R.styleable.PullRefreshLayout_refreshViewClassName);
 //        mExampleColor = a.getColor(
 //                R.styleable.PullRefreshLayout_exampleColor,
 //                mExampleColor);
@@ -99,13 +100,24 @@ public class PullRefreshLayout extends FrameLayout {
 
         a.recycle();
 
-        switch (refreshStyle) {
-            case 0:
-                refreshView = new RefreshView();
-                break;
-            default:
-                refreshView = new RefreshView();
-                break;
+        if (refreshClass != null) {
+            try {
+                Class<?> clazz = Class.forName(refreshClass);
+                refreshView = (IRefreshView) clazz.newInstance();
+            } catch (Exception e) {
+                Log.e(TAG, "init: ClassNotFoundException ", e);
+            }
+        }
+
+        if (refreshView == null) {
+            switch (refreshStyle) {
+                case 0:
+                    refreshView = new RefreshView();
+                    break;
+                default:
+                    refreshView = new RefreshView();
+                    break;
+            }
         }
 
         // Update TextPaint and text measurements from attributes
@@ -156,6 +168,9 @@ public class PullRefreshLayout extends FrameLayout {
                     pullCallBack.onPullStateChange(PullCallBack.STATE_STEP2);
                 } else {
                     pullCallBack.onPullStateChange(PullCallBack.STATE_STEP1);
+                }
+                if (enablePullDown && top <= vtH) {
+                    pullCallBack.onPullStateChange(PullCallBack.STATE_STEP1, top * 1f / vtH);
                 }
                 if (enablePullDown) {
                     headView.setVisibility(VISIBLE);
@@ -515,6 +530,15 @@ public class PullRefreshLayout extends FrameLayout {
             lastState = state;
         }
 
+        @Override
+        public void onPullStateChange(int state, float percent) {
+            switch (state) {
+                case STATE_STEP1:
+                    refreshView.updatePercent(percent);
+                    break;
+            }
+        }
+
         private void toStep1(int lastState, int state) {//TODO
             Log.d(TAG, "toStep1: ==========");
             refreshView.toStep1(getContext(), lastState, state);
@@ -550,6 +574,7 @@ public class PullRefreshLayout extends FrameLayout {
 
         void onPullStateChange(int state);
 
+        void onPullStateChange(int state, float percent);
     }
 
     private OnPullDownListener onPullDownListener;
