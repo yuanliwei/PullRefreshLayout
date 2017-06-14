@@ -2,9 +2,10 @@ package com.ylw.pullrefreshlibrary;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.ViewDragHelper;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -26,13 +27,9 @@ public class PullRefreshLayout extends FrameLayout {
 
     public static final String TAG = "PullRefreshLayout";
 
-    private TextPaint mTextPaint;
-    private float mTextWidth;
-    private float mTextHeight;
     private View headView;
     private View bottomView;
     private ViewDragHelper mDragger;
-    private View dragView;
     private View contentView;
     private View realContentView;
 
@@ -64,11 +61,10 @@ public class PullRefreshLayout extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-//        requestLayout();
     }
 
     @Override
-    protected void onVisibilityChanged(View changedView, int visibility) {
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
         if (changedView == this && visibility == VISIBLE) {
             requestLayout();
@@ -83,20 +79,6 @@ public class PullRefreshLayout extends FrameLayout {
 
         int refreshStyle = a.getInt(R.styleable.PullRefreshLayout_refreshView, 0);
         String refreshClass = a.getString(R.styleable.PullRefreshLayout_refreshViewClassName);
-//        mExampleColor = a.getColor(
-//                R.styleable.PullRefreshLayout_exampleColor,
-//                mExampleColor);
-//        // Use getDimensionPixelSize or getDimensionPixelOffset when dealing with
-//        // values that should fall on pixel boundaries.
-//        mExampleDimension = a.getDimension(
-//                R.styleable.PullRefreshLayout_exampleDimension,
-//                mExampleDimension);
-//
-//        if (a.hasValue(R.styleable.PullRefreshLayout_exampleDrawable)) {
-//            mExampleDrawable = a.getDrawable(
-//                    R.styleable.PullRefreshLayout_exampleDrawable);
-//            mExampleDrawable.setCallback(this);
-//        }
 
         a.recycle();
 
@@ -259,19 +241,9 @@ public class PullRefreshLayout extends FrameLayout {
         } else {
             headView.layout(0, t - vtH, w, t);
         }
-
-//        ViewGroup.LayoutParams ltp = headView.getLayoutParams();
-//        ViewGroup.LayoutParams lmp = contentView.getLayoutParams();
-//        ViewGroup.LayoutParams lbp = bottomView.getLayoutParams();
-//        ltp.
     }
 
     public void countLayout() {
-        int h = getHeight();
-        ViewGroup.LayoutParams ltp = headView.getLayoutParams();
-        ViewGroup.LayoutParams lmp = contentView.getLayoutParams();
-        ViewGroup.LayoutParams lbp = bottomView.getLayoutParams();
-
         requestLayout();
     }
 
@@ -315,78 +287,39 @@ public class PullRefreshLayout extends FrameLayout {
     // 标记正在刷新的时候出现了触摸事件
     boolean refreshingDown = false;
 
+    boolean firstCanPull = false;
+
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (refreshing || refreshingDown) {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                case MotionEvent.ACTION_MOVE:
-                    refreshingDown = true;
-                    break;
-                case MotionEvent.ACTION_UP:
-                default:
-                    refreshingDown = false;
-                    break;
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        boolean result = super.dispatchTouchEvent(ev);
+        if (pullCallBack.canPullDown() || pullCallBack.canPullUp()) {
+            if (!firstCanPull) {
+                firstCanPull = true;
+                final long now = SystemClock.uptimeMillis();
+                MotionEvent event = MotionEvent.obtain(now, now,
+                        MotionEvent.ACTION_DOWN, ev.getRawX(), ev.getRawY(), 0);
+                mDragger.shouldInterceptTouchEvent(ev);
+                event.recycle();
+
             }
-            return true;
-        }
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            initDragView(contentView, event);
-        }
-        if (event.getHistorySize() > 0) {                             //拦截Touch事件
-            if (event.getY() > event.getHistoricalY(0)) {             //向下滑动
-                if (pullCallBack.canPullDown()) {
-                    return mDragger.shouldInterceptTouchEvent(event);
-                } else {
-                    return false;
-                }
-            } else if (event.getY() < event.getHistoricalY(0)) {
-                if (pullCallBack.canPullUp()) {
-                    return mDragger.shouldInterceptTouchEvent(event);
-                } else {
-                    return false;
-                }
-            }
-        }
-        if (pullCallBack.canPullDown()) {
-            return mDragger.shouldInterceptTouchEvent(event);
-        } else if (pullCallBack.canPullUp()) {
-            return mDragger.shouldInterceptTouchEvent(event);
+            mDragger.processTouchEvent(ev);
         } else {
-            return false;
+            mDragger.cancel();
+            firstCanPull = false;
         }
+        return true;
     }
 
-    /**
-     * 初始化当前拖动的view
-     */
-    private void initDragView(View v, MotionEvent e) {
-        if (mDragger.isViewUnder(v, (int) e.getX(), (int) e.getY())) {
-            dragView = v;
-        }
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent event) {
+        Log.d(TAG, "onInterceptTouchEvent: " + event.getAction());
+        return false;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (refreshing || refreshingDown) {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                case MotionEvent.ACTION_MOVE:
-                    refreshingDown = true;
-                    break;
-                case MotionEvent.ACTION_UP:
-                default:
-                    refreshingDown = false;
-                    break;
-            }
-            return true;
-        }
-        try {
-            mDragger.processTouchEvent(event);
-        } catch (Exception e) {
-            Log.w(TAG, "onTouchEvent: " + e.getMessage());
-        }
-        return true;
+        Log.d(TAG, "onTouchEvent: " + event.getAction());
+        return false;
     }
 
 
@@ -426,12 +359,10 @@ public class PullRefreshLayout extends FrameLayout {
                 if (hasSetListener) return;
                 hasSetListener = true;
                 view.setOnScrollListener(new AbsListView.OnScrollListener() {
-                    private int scrollState = SCROLL_STATE_IDLE;
                     boolean s = false;
 
                     @Override
                     public void onScrollStateChanged(AbsListView view, int scrollState) {
-                        this.scrollState = scrollState;
                     }
 
                     @Override
@@ -466,19 +397,13 @@ public class PullRefreshLayout extends FrameLayout {
                 if (web.getScrollY() == 0) {
                     canPullDown = true;
                 }
-//                if (web.getContentHeight() * web.getScale() == (web.getHeight() + web.getScrollY())) {
-//                    //已经处于底端
-//                    canPullUp = true;
-//                }
+
             } else if (realContentView instanceof RecyclerView) {
                 RecyclerView view = (RecyclerView) realContentView;
                 canPullDown = false;
                 canPullUp = false;
 
-                int Extent = view.computeVerticalScrollExtent();
                 int Offset = view.computeVerticalScrollOffset();
-                int Range = view.computeVerticalScrollRange();
-//                Log.d(TAG, "countIt: Offset + Extent - Range = " + (Offset + Extent - Range));
                 if (Offset == 0) {
                     canPullDown = true;
                 }
@@ -491,7 +416,6 @@ public class PullRefreshLayout extends FrameLayout {
                         if (onScrollBottomListener != null && !onScrollBottom)
                             onScrollBottomListener.onScrollBottom();
                         onScrollBottom = true;
-//                        Log.d(TAG, "countIt: onScrollBottomListener : true");
                     } else {
                         onScrollBottom = false;
 //                        Log.d(TAG, "countIt: onScrollBottomListener : false");
@@ -539,7 +463,7 @@ public class PullRefreshLayout extends FrameLayout {
             }
         }
 
-        private void toStep1(int lastState, int state) {//TODO
+        private void toStep1(int lastState, int state) {
             Log.d(TAG, "toStep1: ==========");
             refreshView.toStep1(getContext(), lastState, state);
         }
@@ -556,13 +480,7 @@ public class PullRefreshLayout extends FrameLayout {
 
     };
 
-    private AbsListView.OnScrollListener onScrollListener;
-
-    public void setOnScrollListener(AbsListView.OnScrollListener onScrollListener) {
-        this.onScrollListener = onScrollListener;
-    }
-
-    public interface PullCallBack {
+    interface PullCallBack {
         int STATE_STEP1 = 0;    // 不能刷新
         int STATE_STEP2 = 1;    // 可以刷新
         int STATE_STEP3 = 2;    // 刷新中
@@ -590,7 +508,7 @@ public class PullRefreshLayout extends FrameLayout {
         void onScrollBottom();
     }
 
-    public interface OnCompleteListener {
+    interface OnCompleteListener {
         void onComplete();
     }
 
