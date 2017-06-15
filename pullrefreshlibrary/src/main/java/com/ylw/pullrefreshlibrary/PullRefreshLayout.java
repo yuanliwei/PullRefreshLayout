@@ -2,7 +2,6 @@ package com.ylw.pullrefreshlibrary;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.ViewDragHelper;
 import android.support.v7.widget.RecyclerView;
@@ -257,13 +256,6 @@ public class PullRefreshLayout extends FrameLayout {
         if (vtH == 0) vtH = headView.getMeasuredHeight();
         if (vbH == 0) vbH = bottomView.getMeasuredHeight();
         if (vcH == 0) vcH = contentView.getMeasuredHeight();
-//        vCenterHeight = (int) getResources().getDimension(R.dimen.hw_detail_split_center_height);
-        //计算title Height
-//        vHeadMinHeight = (int) getResources().getDimension(R.dimen.title_height_bg);
-//        if (hasInit == false) {
-//            hasInit = true;
-//            initViewState(hasVideo, showVideo, hasChoice, t_b);
-//        }
     }
 
     @Override
@@ -277,11 +269,6 @@ public class PullRefreshLayout extends FrameLayout {
             ltp.setMargins(0, -vtH, 0, 0);
             lbp.setMargins(0, h, 0, 0);
         }
-//        if (firstLayout && !isInEditMode()) {
-//            firstLayout = false;
-//            //初始化内部控件
-//            initViewState(hasVideo, showVideo, hasChoice, t_b);
-//        }
     }
 
     // 标记正在刷新的时候出现了触摸事件
@@ -289,23 +276,38 @@ public class PullRefreshLayout extends FrameLayout {
 
     boolean firstCanPull = false;
 
+    float downPos = 0;
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        boolean result = super.dispatchTouchEvent(ev);
-        if (pullCallBack.canPullDown() || pullCallBack.canPullUp()) {
-            if (!firstCanPull) {
-                firstCanPull = true;
-                final long now = SystemClock.uptimeMillis();
-                MotionEvent event = MotionEvent.obtain(now, now,
-                        MotionEvent.ACTION_DOWN, ev.getRawX(), ev.getRawY(), 0);
-                mDragger.shouldInterceptTouchEvent(ev);
-                event.recycle();
-
+        if (headView.getBottom() == 0 && bottomView.getTop() == getHeight()) {
+            boolean result = super.dispatchTouchEvent(ev);
+        }
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            downPos = ev.getY();
+            firstCanPull=false;
+            onInterceptTouchEvent(ev);
+            contentView.dispatchTouchEvent(ev);
+        }
+        if (ev.getAction() != MotionEvent.ACTION_DOWN) {
+            float dv = ev.getY() - downPos;
+            if (pullCallBack.canPullDown() && dv > 0 || pullCallBack.canPullUp() && dv < 0) {
+                if (!firstCanPull) {
+                    firstCanPull = true;
+//                    final long now = SystemClock.uptimeMillis();
+//                    MotionEvent event = MotionEvent.obtain(now, now,
+//                            MotionEvent.ACTION_DOWN, ev.getRawX(), ev.getRawY(), 0);
+//                    onInterceptTouchEvent(ev);
+//                    event.recycle();
+//                event = MotionEvent.obtain(now, now,
+//                        MotionEvent.ACTION_CANCEL, ev.getRawX(), ev.getRawY(), 0);
+//                super.dispatchTouchEvent(ev);
+//                event.recycle();
+                }
+                onTouchEvent(ev);
+            } else {
+                contentView.dispatchTouchEvent(ev);
             }
-            mDragger.processTouchEvent(ev);
-        } else {
-            mDragger.cancel();
-            firstCanPull = false;
         }
         return true;
     }
@@ -313,12 +315,14 @@ public class PullRefreshLayout extends FrameLayout {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         Log.d(TAG, "onInterceptTouchEvent: " + event.getAction());
+        mDragger.shouldInterceptTouchEvent(event);
         return false;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         Log.d(TAG, "onTouchEvent: " + event.getAction());
+        mDragger.processTouchEvent(event);
         return false;
     }
 
