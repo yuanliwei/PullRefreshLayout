@@ -19,6 +19,9 @@ import android.widget.ScrollView;
 import com.ylw.pullrefreshlibrary.refreshview.IRefreshView;
 import com.ylw.pullrefreshlibrary.refreshview.RefreshView;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 /*
  * 下拉刷新控件
  */
@@ -271,6 +274,14 @@ public class PullRefreshLayout extends FrameLayout {
         }
     }
 
+    @Override
+    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        super.requestDisallowInterceptTouchEvent(disallowIntercept);
+        this.disallowIntercept = disallowIntercept;
+    }
+
+    boolean disallowIntercept = false;
+
     // 标记正在刷新的时候出现了触摸事件
     boolean refreshingDown = false;
 
@@ -280,14 +291,26 @@ public class PullRefreshLayout extends FrameLayout {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (refreshing) return true;
+        if (refreshing) return false;
 
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            disallowIntercept = false;
+            contentViewDisallowIntercept = false;
             downPos = ev.getY();
             hasCancle = false;
             onInterceptTouchEvent(ev);
             contentView.dispatchTouchEvent(ev);
-        } else if (ev.getAction() == MotionEvent.ACTION_MOVE) {
+            return true;
+        }
+
+        if (disallowIntercept && contentViewDisallowIntercept()) {
+//            contentView.getv
+//            onTouchEvent(ev);
+            contentView.dispatchTouchEvent(ev);
+            return true;
+        }
+
+        if (ev.getAction() == MotionEvent.ACTION_MOVE) {
             float dv = ev.getY() - downPos;
             if (pullCallBack.canPullDown() && dv > 0 || pullCallBack.canPullUp() && dv < 0) {
                 onTouchEvent(ev);
@@ -298,11 +321,31 @@ public class PullRefreshLayout extends FrameLayout {
                 if (!hasCancle)
                     contentView.dispatchTouchEvent(ev);
             }
-        } else {
-            onTouchEvent(ev);
-            contentView.dispatchTouchEvent(ev);
+            return true;
         }
+
+        onTouchEvent(ev);
+        contentView.dispatchTouchEvent(ev);
+
         return true;
+    }
+
+    boolean contentViewDisallowIntercept = false;
+
+    private boolean contentViewDisallowIntercept() {
+        if (contentViewDisallowIntercept) return true;
+        if (!(contentView instanceof ViewGroup)) return false;
+        try {
+            Field field = ViewGroup.class.getDeclaredField("FLAG_DISALLOW_INTERCEPT");
+            Method m = ViewGroup.class.getDeclaredMethod("hasBooleanFlag", int.class);
+            m.setAccessible(true);
+            field.setAccessible(true);
+            boolean result = (boolean) m.invoke(contentView, field.getInt(contentView));
+            if (result) contentViewDisallowIntercept = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override
@@ -503,7 +546,7 @@ public class PullRefreshLayout extends FrameLayout {
         void onScrollBottom();
     }
 
-    interface OnCompleteListener {
+    public interface OnCompleteListener {
         void onComplete();
     }
 

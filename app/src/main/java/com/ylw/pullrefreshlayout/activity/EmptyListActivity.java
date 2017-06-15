@@ -17,6 +17,8 @@ import com.ylw.pullrefreshlibrary.PullRefreshLayout;
 
 public class EmptyListActivity extends AppCompatActivity {
 
+    private static final String TAG = "EmptyListActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +72,13 @@ public class EmptyListActivity extends AppCompatActivity {
                     }
                 }, 3000);
                 Log.d(TAG, "onUpRefresh: ==================");
+            }
+        });
+
+        layout.setOnCompleteListener(new PullRefreshLayout.OnCompleteListener() {
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: OnCompleteListener");
             }
         });
 
