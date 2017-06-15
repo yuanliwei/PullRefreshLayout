@@ -274,54 +274,45 @@ public class PullRefreshLayout extends FrameLayout {
     // 标记正在刷新的时候出现了触摸事件
     boolean refreshingDown = false;
 
-    boolean firstCanPull = false;
-
     float downPos = 0;
+
+    boolean hasCancle = false;
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (headView.getBottom() == 0 && bottomView.getTop() == getHeight()) {
-            boolean result = super.dispatchTouchEvent(ev);
-        }
+        if (refreshing) return true;
+
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             downPos = ev.getY();
-            firstCanPull=false;
+            hasCancle = false;
             onInterceptTouchEvent(ev);
             contentView.dispatchTouchEvent(ev);
-        }
-        if (ev.getAction() != MotionEvent.ACTION_DOWN) {
+        } else if (ev.getAction() == MotionEvent.ACTION_MOVE) {
             float dv = ev.getY() - downPos;
             if (pullCallBack.canPullDown() && dv > 0 || pullCallBack.canPullUp() && dv < 0) {
-                if (!firstCanPull) {
-                    firstCanPull = true;
-//                    final long now = SystemClock.uptimeMillis();
-//                    MotionEvent event = MotionEvent.obtain(now, now,
-//                            MotionEvent.ACTION_DOWN, ev.getRawX(), ev.getRawY(), 0);
-//                    onInterceptTouchEvent(ev);
-//                    event.recycle();
-//                event = MotionEvent.obtain(now, now,
-//                        MotionEvent.ACTION_CANCEL, ev.getRawX(), ev.getRawY(), 0);
-//                super.dispatchTouchEvent(ev);
-//                event.recycle();
-                }
                 onTouchEvent(ev);
-            } else {
+                ev.setAction(MotionEvent.ACTION_CANCEL);
                 contentView.dispatchTouchEvent(ev);
+                hasCancle = true;
+            } else {
+                if (!hasCancle)
+                    contentView.dispatchTouchEvent(ev);
             }
+        } else {
+            onTouchEvent(ev);
+            contentView.dispatchTouchEvent(ev);
         }
         return true;
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        Log.d(TAG, "onInterceptTouchEvent: " + event.getAction());
         mDragger.shouldInterceptTouchEvent(event);
         return false;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.d(TAG, "onTouchEvent: " + event.getAction());
         mDragger.processTouchEvent(event);
         return false;
     }
