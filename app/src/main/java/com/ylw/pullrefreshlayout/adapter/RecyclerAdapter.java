@@ -1,6 +1,7 @@
 package com.ylw.pullrefreshlayout.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -13,7 +14,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter {
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = View.inflate(parent.getContext(), android.R.layout.simple_list_item_1, null);
+        View view = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
         view.setBackgroundColor(0xffff8888);
         return new ViewHolder(view);
     }
