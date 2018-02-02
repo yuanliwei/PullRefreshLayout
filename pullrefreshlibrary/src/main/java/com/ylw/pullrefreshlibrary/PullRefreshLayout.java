@@ -362,6 +362,7 @@ public class PullRefreshLayout extends FrameLayout {
 
 
     private boolean enable = true;
+    private IContentPositionCallback contentPositionCallback;
     private PullCallBack pullCallBack = new PullCallBack() {
         private boolean canPullDown = true;
         private boolean canPullUp = true;
@@ -382,7 +383,13 @@ public class PullRefreshLayout extends FrameLayout {
         private boolean onScrollBottom = false;
 
         private void countIt() {
-            if (realContentView instanceof ScrollView) {
+            if (contentPositionCallback != null) {
+                canPullDown = false;
+                canPullUp = false;
+                if (contentPositionCallback.isTop(realContentView)) {
+                    canPullDown = true;
+                }
+            } else if (realContentView instanceof ScrollView) {
                 canPullDown = realContentView.getScrollY() == 0;
 
                 View contentview = ((ViewGroup) realContentView).getChildAt(0);
@@ -623,5 +630,13 @@ public class PullRefreshLayout extends FrameLayout {
 
     public void setEnable(boolean enable) {
         this.enable = enable;
+    }
+
+    public interface IContentPositionCallback {
+        boolean isTop(View contentView);
+    }
+
+    public void setContentPositionCallback(IContentPositionCallback contentPositionCallback) {
+        this.contentPositionCallback = contentPositionCallback;
     }
 }
