@@ -285,7 +285,8 @@ public class PullRefreshLayout extends FrameLayout {
     // 标记正在刷新的时候出现了触摸事件
     boolean refreshingDown = false;
 
-    float downPos = 0;
+    float downPosY = 0;
+    float downPosX = 0;
 
     boolean hasCancle = false;
 
@@ -296,7 +297,8 @@ public class PullRefreshLayout extends FrameLayout {
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             disallowIntercept = false;
             contentViewDisallowIntercept = false;
-            downPos = ev.getY();
+            downPosY = ev.getY();
+            downPosX = ev.getX();
             hasCancle = false;
             onInterceptTouchEvent(ev);
             contentView.dispatchTouchEvent(ev);
@@ -311,8 +313,9 @@ public class PullRefreshLayout extends FrameLayout {
         }
 
         if (ev.getAction() == MotionEvent.ACTION_MOVE) {
-            float dv = ev.getY() - downPos;
-            if (pullCallBack.canPullDown() && dv > 0 || pullCallBack.canPullUp() && dv < 0) {
+            float dy = ev.getY() - downPosY;
+            float dx = Math.abs(ev.getX() - downPosX);
+            if (pullCallBack.canPullDown() && dy > 0 && (Math.abs(dy) > dx) || pullCallBack.canPullUp() && dy < 0 && (Math.abs(dy) > dx)) {
                 onTouchEvent(ev);
                 ev.setAction(MotionEvent.ACTION_CANCEL);
                 contentView.dispatchTouchEvent(ev);
