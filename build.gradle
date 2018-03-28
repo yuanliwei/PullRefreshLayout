@@ -18,6 +18,8 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
+        maven { url 'http://nexus.up366.com/nexus/content/repositories/releases/' }
+        maven { url 'http://nexus.up366.com/nexus/content/repositories/snapshots/' }
     }
 }
 

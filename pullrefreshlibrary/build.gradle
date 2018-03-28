@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
 
+def snapshot = false
+
 android {
     compileSdkVersion 22
     buildToolsVersion '25.0.0'
@@ -25,78 +27,31 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:22.2.1'
 }
 
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
-version = android.defaultConfig.versionName // 修改为你的版本号
-
-def siteUrl = 'https://github.com/yuanliwei/PullRefreshLayout' // 修改为你的项目的主页
-def gitUrl = 'https://github.com/yuanliwei/PullRefreshLayout.git' // 修改为你的Git仓库的url
-
-group = "com.ylw.view" // Maven Group ID for the artifact，一般填你唯一的包名
-install {
-    repositories.mavenInstaller {
-// This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-// Add your description here
-                name 'PullRefreshLayout for Android.' //项目描述
-                url siteUrl
-// Set your license
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'ylw' //填写的一些基本信息
-                        name 'yuanliwei'
-                        email 'yuanliweiii@gmail.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
-            }
-        }
-    }
-}
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
+apply plugin: 'maven'
+//Creating sources with comments
+task androidSourcesJar(type: Jar) {
     classifier = 'sources'
-}
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    options{
-        encoding "UTF-8"
-        charSet 'UTF-8'
-    }
-}
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
+    from android.sourceSets.main.java.srcDirs
 }
 artifacts {
-    archives javadocJar
-    archives sourcesJar
+    archives androidSourcesJar
 }
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-    configurations = ['archives']
-    pkg {
-        repo = "maven"
-        name = "PullRefreshLayout" //发布到JCenter上的项目名字
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
+group 'com.up366.android'
+version = android.defaultConfig.versionName
+uploadArchives {
+    repositories {
+        mavenLocal()
+        mavenDeployer {
+            version = snapshot ? version + '-SNAPSHOT' : version
+            repository(url: 'http://nexus.up366.com/nexus/content/repositories/releases/') {
+                authentication(userName: "androiddeploy", password: "up366")
+            }
+            snapshotRepository(url: 'http://nexus.up366.com/nexus/content/repositories/snapshots/') {
+                authentication(userName: "androiddeploy", password: "up366")
+            }
+        }
+//        maven {
+//            url 'http://nexus.up366.com/nexus/content/repositories/snapshots/'
+//        }
     }
 }
