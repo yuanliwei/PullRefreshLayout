@@ -28,22 +28,215 @@ import java.lang.reflect.Method;
 public class PullRefreshLayout extends FrameLayout {
 
     public static final String TAG = "PullRefreshLayout";
-
+    IRefreshView refreshView;
+    boolean disallowIntercept = false;
+    // 标记正在刷新的时候出现了触摸事件
+    boolean refreshingDown = false;
+    float downPosY = 0;
+    float downPosX = 0;
+    boolean hasCancle = false;
+    boolean contentViewDisallowIntercept = false;
     private View headView;
     private View bottomView;
     private ViewDragHelper mDragger;
     private View contentView;
     private View realContentView;
-
     private boolean downRefreshing = false;
     private boolean upRefreshing = false;
     private boolean refreshing = false;
-
     private int vtH;
     private int vbH;
     private int vcH;
+    private IOnScrollListener onScrollListener;
+    private boolean enable = true;
+    private IContentPositionCallback contentPositionCallback;
+    private OnPullDownListener onPullDownListener;
+    private OnPullListener onPullListener;
+    private OnScrollBottomListener onScrollBottomListener;
+    private OnCompleteListener onCompleteListener;
+    private boolean enablePullDown = false; // 启用下拉
+    private boolean enablePullUp = false;   // 启用上拉
+    private PullCallBack pullCallBack = new PullCallBack() {
+        boolean hasSetListener = false;
+        int lastState = STATE_STEP1;
+        private boolean canPullDown = true;
+        private boolean canPullUp = true;
+        private boolean onScrollBottom = false;
 
-    IRefreshView refreshView;
+        @Override
+        public boolean canPullDown() {
+            countIt();
+            return enable && canPullDown && enablePullDown;
+        }
+
+        @Override
+        public boolean canPullUp() {
+            countIt();
+            return canPullUp && enablePullUp;
+        }
+
+        private void countIt() {
+            if (contentPositionCallback != null) {
+                canPullDown = false;
+                canPullUp = false;
+                if (contentPositionCallback.isTop(realContentView)) {
+                    canPullDown = true;
+                    if (onScrollListener != null) {
+                        onScrollListener.onScroll(0);
+                    }
+                }
+            } else if (realContentView instanceof ScrollView) {
+                canPullDown = realContentView.getScrollY() == 0;
+                if (onScrollListener != null && !canPullDown) {
+                    onScrollListener.onScroll(-realContentView.getScrollY());
+                }
+                View contentview = ((ViewGroup) realContentView).getChildAt(0);
+                canPullUp = contentview.getMeasuredHeight() == realContentView.getScrollY() + realContentView.getHeight();
+            } else if (realContentView instanceof AbsListView) {
+                ListView view = (ListView) realContentView;
+                int cCount = view.getChildCount();
+                if (cCount == 0) {
+                    canPullDown = true;
+                    canPullUp = true;
+                }
+                if (hasSetListener) return;
+                hasSetListener = true;
+                view.setOnScrollListener(new AbsListView.OnScrollListener() {
+                    boolean s = false;
+
+                    @Override
+                    public void onScrollStateChanged(AbsListView view, int scrollState) {
+                    }
+
+                    @Override
+                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                        canPullDown = false;
+                        canPullUp = false;
+                        if (firstVisibleItem == 0) {
+                            View firstVisibleItemView = view.getChildAt(0);
+                            if (firstVisibleItemView != null && firstVisibleItemView.getTop() == 0) {
+                                canPullDown = true;
+                                canPullUp = false;
+                                s = false;
+                                if (onScrollListener != null && !canPullDown) {
+                                    onScrollListener.onScroll(0);
+                                }
+                            }
+                        } else if ((firstVisibleItem + visibleItemCount) == totalItemCount) {
+                            View lastVisibleItemView = view.getChildAt(view.getChildCount() - 1);
+                            if (lastVisibleItemView != null && lastVisibleItemView.getBottom() == view.getHeight()) {
+                                canPullDown = false;
+                                canPullUp = true;
+
+                                if (onScrollBottomListener != null && !s) {
+                                    onScrollBottomListener.onScrollBottom();
+                                }
+                                s = true;
+                            }
+                        }
+                    }
+                });
+            } else if (realContentView instanceof WebView) {
+                WebView web = (WebView) realContentView;
+                canPullDown = false;
+                canPullUp = false;
+                if (web.getScrollY() == 0) {
+                    canPullDown = true;
+                }
+                if (onScrollListener != null && !canPullDown) {
+                    onScrollListener.onScroll(-web.getScrollY());
+                }
+            } else if (realContentView instanceof RecyclerView) {
+                RecyclerView view = (RecyclerView) realContentView;
+                canPullDown = false;
+                canPullUp = false;
+
+                int Offset = view.computeVerticalScrollOffset();
+                if (Offset == 0) {
+                    canPullDown = true;
+                }
+                if (onScrollListener != null && !canPullDown) {
+                    onScrollListener.onScroll(-Offset);
+                }
+                RecyclerView.Adapter adapter = view.getAdapter();
+                if (adapter != null) {
+                    int itemCount = adapter.getItemCount();
+                    View lastChild = view.getChildAt(view.getChildCount() - 1);
+                    int lastVisibleViewPosition = view.getChildAdapterPosition(lastChild);
+                    if (lastVisibleViewPosition == itemCount - 1) {
+                        if (onScrollBottomListener != null && !onScrollBottom)
+                            onScrollBottomListener.onScrollBottom();
+                        onScrollBottom = true;
+                    } else {
+                        onScrollBottom = false;
+//                        Log.d(TAG, "countIt: onScrollBottomListener : false");
+                    }
+                }
+                if (hasSetListener) return;
+                hasSetListener = true;
+                view.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                        super.onScrolled(recyclerView, dx, dy);
+                        int Offset = recyclerView.computeVerticalScrollOffset();
+                        if (onScrollListener != null && !canPullDown) {
+                            onScrollListener.onScroll(-Offset);
+                        }
+                    }
+
+                    @Override
+                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            countIt();
+                        }
+                    }
+                });
+            }
+
+        }
+
+        @Override
+        public void onPullStateChange(int state) {
+            if (lastState == state) return;
+            switch (state) {
+                case STATE_STEP1:
+                    toStep1(lastState, state);
+                    break;
+                case STATE_STEP2:
+                    toStep2(lastState, state);
+                    break;
+                case STATE_STEP3:
+                    toStep3(lastState, state);
+                    break;
+            }
+            lastState = state;
+        }
+
+        @Override
+        public void onPullStateChange(int state, float percent) {
+            switch (state) {
+                case STATE_STEP1:
+                    refreshView.updatePercent(percent);
+                    break;
+            }
+        }
+
+        private void toStep1(int lastState, int state) {
+            Log.d(TAG, "toStep1: ==========");
+            refreshView.toStep1(getContext(), lastState, state);
+        }
+
+        private void toStep2(int lastState, int state) {
+            Log.d(TAG, "toStep2: ==========");
+            refreshView.toStep2(getContext(), lastState, state);
+        }
+
+        private void toStep3(int lastState, int state) {
+            refreshView.toStep3(getContext(), lastState, state);
+            Log.d(TAG, "toStep3: ==========");
+        }
+
+    };
 
     public PullRefreshLayout(Context context) {
         super(context);
@@ -225,7 +418,6 @@ public class PullRefreshLayout extends FrameLayout {
         }
     }
 
-
     private void changeLayout() {
         int w = getWidth();
         int h = getHeight();
@@ -242,6 +434,9 @@ public class PullRefreshLayout extends FrameLayout {
             contentView.layout(0, 0, w, b);
         } else {
             headView.layout(0, t - vtH, w, t);
+        }
+        if (onScrollListener != null) {
+            onScrollListener.onScroll(contentView.getTop());
         }
     }
 
@@ -279,16 +474,6 @@ public class PullRefreshLayout extends FrameLayout {
         super.requestDisallowInterceptTouchEvent(disallowIntercept);
         this.disallowIntercept = disallowIntercept;
     }
-
-    boolean disallowIntercept = false;
-
-    // 标记正在刷新的时候出现了触摸事件
-    boolean refreshingDown = false;
-
-    float downPosY = 0;
-    float downPosX = 0;
-
-    boolean hasCancle = false;
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -333,8 +518,6 @@ public class PullRefreshLayout extends FrameLayout {
         return true;
     }
 
-    boolean contentViewDisallowIntercept = false;
-
     private boolean contentViewDisallowIntercept() {
         if (contentViewDisallowIntercept) return true;
         if (!(contentView instanceof ViewGroup)) return false;
@@ -362,212 +545,6 @@ public class PullRefreshLayout extends FrameLayout {
         mDragger.processTouchEvent(event);
         return false;
     }
-
-
-    private boolean enable = true;
-    private IContentPositionCallback contentPositionCallback;
-    private PullCallBack pullCallBack = new PullCallBack() {
-        private boolean canPullDown = true;
-        private boolean canPullUp = true;
-        boolean hasSetListener = false;
-
-        @Override
-        public boolean canPullDown() {
-            countIt();
-            return enable && canPullDown && enablePullDown;
-        }
-
-        @Override
-        public boolean canPullUp() {
-            countIt();
-            return canPullUp && enablePullUp;
-        }
-
-        private boolean onScrollBottom = false;
-
-        private void countIt() {
-            if (contentPositionCallback != null) {
-                canPullDown = false;
-                canPullUp = false;
-                if (contentPositionCallback.isTop(realContentView)) {
-                    canPullDown = true;
-                }
-            } else if (realContentView instanceof ScrollView) {
-                canPullDown = realContentView.getScrollY() == 0;
-
-                View contentview = ((ViewGroup) realContentView).getChildAt(0);
-                canPullUp = contentview.getMeasuredHeight() == realContentView.getScrollY() + realContentView.getHeight();
-            } else if (realContentView instanceof AbsListView) {
-                ListView view = (ListView) realContentView;
-                int cCount = view.getChildCount();
-                if (cCount == 0) {
-                    canPullDown = true;
-                    canPullUp = true;
-                }
-                if (hasSetListener) return;
-                hasSetListener = true;
-                view.setOnScrollListener(new AbsListView.OnScrollListener() {
-                    boolean s = false;
-
-                    @Override
-                    public void onScrollStateChanged(AbsListView view, int scrollState) {
-                    }
-
-                    @Override
-                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                        canPullDown = false;
-                        canPullUp = false;
-                        if (firstVisibleItem == 0) {
-                            View firstVisibleItemView = view.getChildAt(0);
-                            if (firstVisibleItemView != null && firstVisibleItemView.getTop() == 0) {
-                                canPullDown = true;
-                                canPullUp = false;
-                                s = false;
-                            }
-                        } else if ((firstVisibleItem + visibleItemCount) == totalItemCount) {
-                            View lastVisibleItemView = view.getChildAt(view.getChildCount() - 1);
-                            if (lastVisibleItemView != null && lastVisibleItemView.getBottom() == view.getHeight()) {
-                                canPullDown = false;
-                                canPullUp = true;
-
-                                if (onScrollBottomListener != null && !s) {
-                                    onScrollBottomListener.onScrollBottom();
-                                }
-                                s = true;
-                            }
-                        }
-                    }
-                });
-            } else if (realContentView instanceof WebView) {
-                WebView web = (WebView) realContentView;
-                canPullDown = false;
-                canPullUp = false;
-                if (web.getScrollY() == 0) {
-                    canPullDown = true;
-                }
-
-            } else if (realContentView instanceof RecyclerView) {
-                RecyclerView view = (RecyclerView) realContentView;
-                canPullDown = false;
-                canPullUp = false;
-
-                int Offset = view.computeVerticalScrollOffset();
-                if (Offset == 0) {
-                    canPullDown = true;
-                }
-                RecyclerView.Adapter adapter = view.getAdapter();
-                if (adapter != null) {
-                    int itemCount = adapter.getItemCount();
-                    View lastChild = view.getChildAt(view.getChildCount() - 1);
-                    int lastVisibleViewPosition = view.getChildAdapterPosition(lastChild);
-                    if (lastVisibleViewPosition == itemCount - 1) {
-                        if (onScrollBottomListener != null && !onScrollBottom)
-                            onScrollBottomListener.onScrollBottom();
-                        onScrollBottom = true;
-                    } else {
-                        onScrollBottom = false;
-//                        Log.d(TAG, "countIt: onScrollBottomListener : false");
-                    }
-                }
-                if (hasSetListener) return;
-                hasSetListener = true;
-                view.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                    @Override
-                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                            countIt();
-                        }
-                    }
-                });
-            }
-
-        }
-
-        int lastState = STATE_STEP1;
-
-        @Override
-        public void onPullStateChange(int state) {
-            if (lastState == state) return;
-            switch (state) {
-                case STATE_STEP1:
-                    toStep1(lastState, state);
-                    break;
-                case STATE_STEP2:
-                    toStep2(lastState, state);
-                    break;
-                case STATE_STEP3:
-                    toStep3(lastState, state);
-                    break;
-            }
-            lastState = state;
-        }
-
-        @Override
-        public void onPullStateChange(int state, float percent) {
-            switch (state) {
-                case STATE_STEP1:
-                    refreshView.updatePercent(percent);
-                    break;
-            }
-        }
-
-        private void toStep1(int lastState, int state) {
-            Log.d(TAG, "toStep1: ==========");
-            refreshView.toStep1(getContext(), lastState, state);
-        }
-
-        private void toStep2(int lastState, int state) {
-            Log.d(TAG, "toStep2: ==========");
-            refreshView.toStep2(getContext(), lastState, state);
-        }
-
-        private void toStep3(int lastState, int state) {
-            refreshView.toStep3(getContext(), lastState, state);
-            Log.d(TAG, "toStep3: ==========");
-        }
-
-    };
-
-    interface PullCallBack {
-        int STATE_STEP1 = 0;    // 不能刷新
-        int STATE_STEP2 = 1;    // 可以刷新
-        int STATE_STEP3 = 2;    // 刷新中
-        int STATE_STEP4 = 3;    // 刷新完成
-
-        boolean canPullDown();
-
-        boolean canPullUp();
-
-        void onPullStateChange(int state);
-
-        void onPullStateChange(int state, float percent);
-    }
-
-    private OnPullDownListener onPullDownListener;
-    private OnPullListener onPullListener;
-    private OnScrollBottomListener onScrollBottomListener;
-    private OnCompleteListener onCompleteListener;
-
-    public interface OnPullDownListener {
-        void onRefresh();
-    }
-
-    public interface OnScrollBottomListener {
-        void onScrollBottom();
-    }
-
-    public interface OnCompleteListener {
-        void onComplete();
-    }
-
-    public interface OnPullListener {
-        void onDownRefresh();
-
-        void onUpRefresh();
-    }
-
-    private boolean enablePullDown = false; // 启用下拉
-    private boolean enablePullUp = false;   // 启用上拉
 
     public void setOnScrollBottomListener(OnScrollBottomListener onScrollBottomListener) {
         this.onScrollBottomListener = onScrollBottomListener;
@@ -635,11 +612,52 @@ public class PullRefreshLayout extends FrameLayout {
         this.enable = enable;
     }
 
-    public interface IContentPositionCallback {
-        boolean isTop(View contentView);
+    public void setOnScrollListener(IOnScrollListener listener) {
+        this.onScrollListener = listener;
     }
 
     public void setContentPositionCallback(IContentPositionCallback contentPositionCallback) {
         this.contentPositionCallback = contentPositionCallback;
+    }
+
+    interface PullCallBack {
+        int STATE_STEP1 = 0;    // 不能刷新
+        int STATE_STEP2 = 1;    // 可以刷新
+        int STATE_STEP3 = 2;    // 刷新中
+        int STATE_STEP4 = 3;    // 刷新完成
+
+        boolean canPullDown();
+
+        boolean canPullUp();
+
+        void onPullStateChange(int state);
+
+        void onPullStateChange(int state, float percent);
+    }
+
+    public interface OnPullDownListener {
+        void onRefresh();
+    }
+
+    public interface OnScrollBottomListener {
+        void onScrollBottom();
+    }
+
+    public interface OnCompleteListener {
+        void onComplete();
+    }
+
+    public interface OnPullListener {
+        void onDownRefresh();
+
+        void onUpRefresh();
+    }
+
+    public interface IContentPositionCallback {
+        boolean isTop(View contentView);
+    }
+
+    public interface IOnScrollListener {
+        void onScroll(int offset);
     }
 }
